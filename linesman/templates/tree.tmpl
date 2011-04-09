@@ -1,0 +1,9 @@
+<%def name="print_tree(node, level=0)">
+</%def>
+<h1>Session ${session.uuid}</h1>
+
+<ul>
+% for root_node in session.root_nodes:
+${print_tree(root_node)}
+% endfor
+</ul>
