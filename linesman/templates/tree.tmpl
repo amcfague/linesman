@@ -1,9 +1,35 @@
-<%def name="print_tree(node, level=0)">
+<%def name="print_tree(node)">
+<ul>
+  <li><span class="func_name">${node | h}</span><span class="time">${graph.node[node].get('totaltime')}ms</span>
+  % for subnode in graph.neighbors(node):
+  ${print_tree(subnode)}
+  % endfor
+</ul>
 </%def>
+
+<html>
+<head>
+  <title>Linesman - Profile ${session.uuid}</title>
+</head>
+<body>
+
 <h1>Session ${session.uuid}</h1>
 
-<ul>
-% for root_node in session.root_nodes:
+<h2>Call Graph</h2>
+
+<h3>Hierarchy</h3>
+% for root_node in root_nodes:
 ${print_tree(root_node)}
 % endfor
-</ul>
+
+<h3>Graph Representation</h3>
+
+<img src="${application_url}/graph/${session.uuid}"/>
+
+<h2>Notes</h2>
+<p>The following edges were removed to break cycles:</p>
+<pre>
+%for u, v in removed_edges:
+    ${u} -> ${v}
+%endfor
+</pre>

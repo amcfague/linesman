@@ -8,11 +8,15 @@ import uuid
 log = logging.getLogger(__name__)
 
 
+def draw_graph(graph, output_path):
+    nx.to_agraph(graph).draw(output_path, prog="dot")
+    log.info("Wrote output to `%s'" % output_path)
+    return output_path
+
 class ProfilingSession(object):
 
     def __init__(self, stats, environ={}, timestamp=None):
         self._graph = None
-        self._stats = stats
         self._uuid = uuid.uuid1()
 
         # Save some environment variables (if available)
@@ -24,54 +28,48 @@ class ProfilingSession(object):
         self.cutoff_time = self.duration * self.cutoff_percentage
         self.timestamp = timestamp
 
-        self._create_graph()
+        self._create_graph(stats)
 
-    def _create_graph(self):
+    def _create_graph(self, stats):
         def generate_key(stat):
+            code = stat.code
+
+            # First, check if its built-in (i.e., code is a string)
+            if isinstance(code, str):
+                return code
+
             # If we have a module, generate the module name (a.b.c, etc..)
-            module = getmodule(stat.code)
+            module = getmodule(code)
             if module:
-                return ".".join((module.__name__, stat.code.co_name))
+                return ".".join((module.__name__, code.co_name))
 
             # Otherwise, return a path based on the filename and function name.
-            return "%s.%s" % (stat.code.co_filename, stat.code.co_name)
-
-        def valid_module(code):
-            if isinstance(code, str):
-                return False
-            if code.co_filename.startswith("<"):
-                return False
-            return True
+            return "%s.%s" % (code.co_filename, code.co_name)
 
         # Create a graph; dot graphs need names, so just use `G' so that
         # pygraphviz doesn't complain when we render it.
         g = nx.DiGraph(name="G")
-        stats = self._stats
 
-        # Iterate through stats to add the original nodes
+        # Iterate through stats to add the original nodes.  The will add ALL
+        # the nodes, even ones which might be pruned later.  This is so that
+        # the library will always have the original callgraph, which can be
+        # manipulated for display purposes later.
         for stat in stats:
-            # Skip invalid modules
-            if not valid_module(stat.code):
-                continue
-
             caller_key = generate_key(stat)
+
+            attrs = {
+                'callcount': stat.callcount,
+                'inlinetime': stat.inlinetime,
+                'reccallcount': stat.reccallcount,
+                'totaltime': stat.totaltime,
+            }
+            g.add_node(caller_key, attr_dict=attrs)
 
             # Add all the calls as edges
             for call in stat.calls or []:
-                # Skip invalid calls
-                if not valid_module(call.code):
-                    continue
-
                 callee_key = generate_key(call)
 
-                # If defined, cutoff subgraphs based on totaltime taken
-                if self.cutoff_time and call.totaltime < self.cutoff_time:
-                    log.debug(
-                        "Skipping edge `%s' -> `%s', due to cutoff.",
-                        caller_key, callee_key, call.totaltime)
-                    continue
-
-                attrs = {
+                call_attrs = {
                     'callcount': call.callcount,
                     'inlinetime': call.inlinetime,
                     'reccallcount': call.reccallcount,
@@ -82,21 +80,9 @@ class ProfilingSession(object):
                 g.add_edge(caller_key, callee_key,
                            weight=call.totaltime,
                            label=call.totaltime,
-                           attr_dict=attrs)
+                           attr_dict=call_attrs)
 
         self._graph = g
-
-    def draw_graph(self):
-        filename = self.uuid + ".png"
-        path = os.path.join(gettempdir(), filename)
-        nx.to_agraph(self._graph).draw(path, prog="dot")
-        log.info("Wrote output to `%s'" % path)
-
-    @property
-    def root_nodes(self):
-        return [node
-                for node, degree in self._graph.in_degree_iter()
-                if degree == 0]
 
     @property
     def uuid(self):
