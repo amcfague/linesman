@@ -29,13 +29,13 @@ except ImportError:
     from profile import Profile
 
 
-
 log = logging.getLogger(__name__)
 
 # Graphs
 GRAPH_DIR = join(gettempdir(), "linesman-graph")
 MEDIA_DIR = resource_filename("linesman", "media")
 TEMPLATES_DIR = resource_filename("linesman", "templates")
+
 
 def prepare_graph(source_graph, cutoff_time, break_cycles=False):
     """
@@ -53,13 +53,13 @@ def prepare_graph(source_graph, cutoff_time, break_cycles=False):
     # Remove nodes where the totaltime is greater than the cutoff time
     g.remove_nodes_from([node for node, data in g.nodes(data=True)
                               if data.get('totaltime') < cutoff_time])
-   
+
     # Break cycles
     if break_cycles:
         for cycle in nx.simple_cycles(g):
             u, v = cycle[0], cycle[1]
             g.remove_edge(u, v)
-            cyclic_breaks.append((u,v))
+            cyclic_breaks.append((u, v))
 
     root_nodes = [node for node, degree in g.in_degree_iter() if degree == 0]
 
@@ -105,7 +105,8 @@ class ProfilingMiddleware(object):
             with open(self.session_history_path, "rb") as pickle_fd:
                 self._session_history = cPickle.load(pickle_fd)
         except IOError:
-            log.debug("`%s' does not exist; creating new dictionary.", self.session_history_path)
+            log.debug("`%s' does not exist; creating new dictionary.",
+                                                self.session_history_path)
             self._session_history = OrderedDict()
 
     def __call__(self, environ, start_response):
@@ -147,7 +148,7 @@ class ProfilingMiddleware(object):
             wsgi_app = self.show_profile(req)
         else:
             wsgi_app = HTTPNotFound()
-        
+
         return wsgi_app(environ, start_response)
 
     def get_template(self, template):
@@ -180,7 +181,7 @@ class ProfilingMiddleware(object):
     def list_profiles(self, req):
         """
         Displays all available profiles in list format.
-        
+
         ``req``:
             :class:`webob.Request` containing the environment information from
             the request itself.
@@ -196,7 +197,7 @@ class ProfilingMiddleware(object):
     def media(self, req):
         """
         Serves up static files relative to ``MEDIA_DIR``.
-        
+
         ``req``:
             :class:`webob.Request` containing the environment information from
             the request itself.
@@ -246,7 +247,7 @@ class ProfilingMiddleware(object):
                 log.debug("Creating thumbnail for %s at %s.", session_uuid,
                                                               thumbnail_path)
                 im = Image.open(path, 'r')
-                im.thumbnail((600,600), Image.ANTIALIAS)
+                im.thumbnail((600, 600), Image.ANTIALIAS)
                 im.save(thumbnail_path)
 
         return StaticURLParser(GRAPH_DIR)

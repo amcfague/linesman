@@ -20,6 +20,7 @@ def draw_graph(graph, output_path):
     nx.to_agraph(graph).draw(output_path, prog="dot")
     log.info("Wrote output to `%s'" % output_path)
 
+
 def create_graph(stats):
     """
     Given an instance of :class:`pstats.Pstats`, this will use the generated
@@ -87,12 +88,13 @@ def create_graph(stats):
 
     return g
 
+
 class ProfilingSession(object):
     """
     The profiling session is used to store long-term information about the
     profiled call, including generating the complete callgraph based on
     cProfile's stats output.
-    
+
     Of special interest is the ``uuid`` that it generates to uniquely track
     this request.
 
