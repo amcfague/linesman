@@ -37,35 +37,6 @@ MEDIA_DIR = resource_filename("linesman", "media")
 TEMPLATES_DIR = resource_filename("linesman", "templates")
 
 
-def prepare_graph(source_graph, cutoff_time, break_cycles=False):
-    """
-    Prepares a graph for display.  This includes:
-
-        - removing subgraphs based on a cutoff time
-        - breaking cycles
-
-    Returns a tuple of (new_graph, removed_edges)
-    """
-    # Always use a copy for destructive changes
-    g = source_graph.copy()
-    cyclic_breaks = []
-
-    # Remove nodes where the totaltime is greater than the cutoff time
-    g.remove_nodes_from([node for node, data in g.nodes(data=True)
-                              if data.get('totaltime') < cutoff_time])
-
-    # Break cycles
-    if break_cycles:
-        for cycle in nx.simple_cycles(g):
-            u, v = cycle[0], cycle[1]
-            g.remove_edge(u, v)
-            cyclic_breaks.append((u, v))
-
-    root_nodes = [node for node, degree in g.in_degree_iter() if degree == 0]
-
-    return g, root_nodes, cyclic_breaks
-
-
 class ProfilingMiddleware(object):
     """
     This wraps calls to the WSGI application with cProfile, storing the
@@ -84,7 +55,8 @@ class ProfilingMiddleware(object):
 
     def __init__(self, app,
                        profiler_path="/__profiler__",
-                       session_history_path="sessions.dat"):
+                       session_history_path="sessions.dat",
+                       **kwargs):
         self.app = app
         self.profiler_path = profiler_path
         self.session_history_path = session_history_path
@@ -278,3 +250,42 @@ class ProfilingMiddleware(object):
                 application_url=self.profiler_path)
 
         return resp
+
+
+def prepare_graph(source_graph, cutoff_time, break_cycles=False):
+    """
+    Prepares a graph for display.  This includes:
+
+        - removing subgraphs based on a cutoff time
+        - breaking cycles
+
+    Returns a tuple of (new_graph, removed_edges)
+    """
+    # Always use a copy for destructive changes
+    g = source_graph.copy()
+    cyclic_breaks = []
+
+    # Remove nodes where the totaltime is greater than the cutoff time
+    g.remove_nodes_from([node for node, data in g.nodes(data=True)
+                              if data.get('totaltime') < cutoff_time])
+
+    # Break cycles
+    if break_cycles:
+        for cycle in nx.simple_cycles(g):
+            u, v = cycle[0], cycle[1]
+            g.remove_edge(u, v)
+            cyclic_breaks.append((u, v))
+
+    root_nodes = [node for node, degree in g.in_degree_iter() if degree == 0]
+
+    return g, root_nodes, cyclic_breaks
+
+
+def profiler_filter_factory(conf, **kwargs):
+    def filter(app):
+        return ProfilingMiddleware(app, **kwargs)
+    return filter
+
+
+def profiler_filter_app_factory(app, conf, **kwargs):
+    return ProfilingMiddleware(app, **kwargs)

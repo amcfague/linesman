@@ -1,10 +1,13 @@
 Metadata-Version: 1.0
 Name: linesman
 Version: 0.1
-Summary: Profiling middleware
+Summary: WSGI Profiling middleware
 Home-page: UNKNOWN
 Author: Andrew McFague
 Author-email: redmumba@gmail.com
 License: UNKNOWN
 Description: UNKNOWN
 Platform: UNKNOWN
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python
+Classifier: Topic :: Internet :: WWW/HTTP :: WSGI
