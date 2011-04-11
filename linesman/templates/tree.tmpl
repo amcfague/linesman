@@ -14,22 +14,37 @@
 <body>
 
 <h1>Session ${session.uuid}</h1>
+<p>Session profile completed in <strong>${session.duration}ms</strong>.</p>
+% if session.cutoff_percentage:
+<p>Calls that took less than <strong>${session.cutoff_percentage * 100}% of the total time (${session.cutoff_time}ms)</strong> have been ommitted from this page.</p>
+% endif
+
 
 <h2>Call Graph</h2>
 
 <h3>Hierarchy</h3>
+
 % for root_node in root_nodes:
 ${print_tree(root_node)}
 % endfor
 
+<h3>Hierarchy Notes</h3>
+% if removed_edges:
+<p>The following edges were removed to break cycles (for display only):</p>
+<pre>
+%   for u, v in removed_edges:
+    ${u} -> ${v}
+%   endfor
+</pre>
+% else:
+<p>No notes.</p>
+% endif
+
 <h3>Graph Representation</h3>
 
-<img src="${application_url}/graph/${session.uuid}"/>
+<center>
+  <a href="../graph/${session.uuid}.png">
+    <img style="padding: 1em; border: 1px solid black;" src="../graph/thumb-${session.uuid}.png"/>
+  </a>
+</center>
 
-<h2>Notes</h2>
-<p>The following edges were removed to break cycles:</p>
-<pre>
-%for u, v in removed_edges:
-    ${u} -> ${v}
-%endfor
-</pre>

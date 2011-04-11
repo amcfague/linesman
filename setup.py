@@ -14,9 +14,10 @@ setup(
     url='',
     packages=find_packages(),
     zip_safe=False,
-    dependencies=[
+    install_requires=[
         "mako",
         "networkx",
-        "ordereddict"
+        "ordereddict",
+        "PIL"
     ]
 )

@@ -12,7 +12,7 @@ except ImportError:
 
 from datetime import datetime
 from linesman import ProfilingSession, draw_graph
-from mako.template import Template
+from mako.lookup import TemplateLookup
 from os import makedirs
 from os.path import dirname, exists, join
 from paste.urlparser import StaticURLParser
@@ -23,6 +23,7 @@ from webob.exc import HTTPNotFound
 
 import cPickle
 import logging
+import Image
 import mimetypes
 import networkx as nx
 
@@ -32,10 +33,6 @@ log = logging.getLogger(__name__)
 GRAPH_DIR = join(gettempdir(), "linesman-graph")
 MEDIA_DIR = resource_filename("linesman", "media")
 TEMPLATES_DIR = resource_filename("linesman", "templates")
-
-# Templates
-session_tree_template = Template(filename=join(TEMPLATES_DIR, "tree.tmpl"))
-session_listing_template = Template(filename=join(TEMPLATES_DIR, "list.tmpl"))
 
 try:
     makedirs(GRAPH_DIR)
@@ -79,6 +76,9 @@ class ProfilingMiddleware(object):
         self.profiler_path = profiler_path
         self.session_history_path = session_history_path
 
+        # Setup the Mako templates
+        self.template_lookup = TemplateLookup(directories=[TEMPLATES_DIR])
+
         # Try to read stored sessions on disk
         try:
             with open(self.session_history_path, "rb") as pickle_fd:
@@ -90,7 +90,6 @@ class ProfilingMiddleware(object):
     def __call__(self, environ, start_response):
         # If we're not accessing the profiler, profile the request.
         req = Request(environ)
-        print req.path_info_peek()
         if req.path_info_peek() != self.profiler_path.strip('/'):
             _locals = locals()
             prof = Profile()
@@ -105,9 +104,6 @@ class ProfilingMiddleware(object):
 
         req.path_info_pop()
         query_param = req.path_info_pop()
-        print dir(req)
-        print req.application_url
-        print req.path_url
         if not query_param:
             wsgi_app = self.list_profiles(req)
         elif query_param == "graph":
@@ -120,6 +116,9 @@ class ProfilingMiddleware(object):
             wsgi_app = HTTPNotFound()
         
         return wsgi_app(environ, start_response)
+
+    def get_template(self, template):
+        return self.template_lookup.get_template(template)
 
     def __flush_sessions(self):
         """ Flushes all sessions to disk. """
@@ -138,7 +137,7 @@ class ProfilingMiddleware(object):
 
     def list_profiles(self, req):
         resp = Response()
-        resp.body = session_listing_template.render(
+        resp.body = self.get_template('list.tmpl').render(
             history=self._session_history,
             application_url=req.application_url)
         return resp
@@ -147,15 +146,35 @@ class ProfilingMiddleware(object):
         return StaticURLParser(MEDIA_DIR)
 
     def render_graph(self, req):
-        print "rendering graph"
-        session_uuid, ext = tuple(req.path_info_peek().rsplit(".", 1))
-        filename = "%s.png" % session_uuid
-        path = join(GRAPH_DIR, filename)
-        if session_uuid in self._session_history and not exists(path):
+        path_info = req.path_info_peek()
+        if '.' in path_info:
+            session_uuid, ext = path_info.rsplit('.')
+        if path_info.startswith("thumb-"):
+            session_uuid = session_uuid[6:]
+
+        # We now have the session_uuid
+        if session_uuid in self._session_history:
+            force_thumbnail_creation = False
             session = self._session_history[session_uuid]
-            graph, root_nodes, removed_edges = prepare_graph(
-                session._graph, session.cutoff_time, False)
-            draw_graph(graph, path)
+
+            filename = "%s.png" % session_uuid
+            path = join(GRAPH_DIR, filename)
+            if not exists(path):
+                session = self._session_history[session_uuid]
+                graph, root_nodes, removed_edges = prepare_graph(
+                    session._graph, session.cutoff_time, False)
+                draw_graph(graph, path)
+                force_thumbnail_creation = True
+
+            thumbnail_filename = "thumb-%s.png" % session_uuid
+            thumbnail_path = join(GRAPH_DIR, thumbnail_filename)
+            if not exists(thumbnail_path) or force_thumbnail_creation:
+                log.debug("Creating thumbnail for %s at %s.", session_uuid,
+                                                              thumbnail_path)
+                im = Image.open(path, 'r')
+                im.thumbnail((600,600), Image.ANTIALIAS)
+                im.save(thumbnail_path)
+
         return StaticURLParser(GRAPH_DIR)
 
     def show_profile(self, req):
@@ -168,7 +187,7 @@ class ProfilingMiddleware(object):
             session = self._session_history[session_uuid]
             graph, root_nodes, removed_edges = prepare_graph(
                 session._graph, session.cutoff_time, True)
-            resp.body = session_tree_template.render(
+            resp.body = self.get_template('tree.tmpl').render(
                 session=session, graph=graph, root_nodes=root_nodes,
                 removed_edges=removed_edges,
                 application_url=self.profiler_path)
