@@ -2,9 +2,12 @@
 Linesman Documentation
 ======================
 
-This is the central hub for _all_ Linesman documentation.  It includes
-instructions on how to get your environment setup, and how to monitor usage.
-Things it does NOT cover are:
+This is the central hub for *all* Linesman documentation.  It covers:
+
+    - instructions on how to setup middleware
+    - how to view the on-the-fly graphs and statistics
+
+Things it *does NOT cover* are:
 
     - interpreting profiling data
     - memory leaks
@@ -36,16 +39,6 @@ Narrative Documentation
     :glob:
 
     narr/*
-
-Tutorials
-=========
-
-.. toctree::
-   :maxdepth: 1
-   :glob:
-
-   tutorials/*
-
 
 Reference Material
 ==================

@@ -24,7 +24,7 @@ def draw_graph(graph, output_path):
 def create_graph(stats):
     """
     Given an instance of :class:`pstats.Pstats`, this will use the generated
-    call data to create a graph using the :package:`networkx` library.  Node
+    call data to create a graph using the :mod:`networkx` library.  Node
     and edge information is stored in the graph itself, so that the stats
     object itself--which can't be pickled--does not need to be kept around.
 
@@ -103,7 +103,7 @@ class ProfilingSession(object):
         :func:`~cProfile.Profile.getstats()` on a cProfile object.
     ``environ``:
         If specified, this Session will store `environ` data.  This should be
-        the environment setup by the WSGI server (i.e., :package:`paster`).
+        the environment setup by the WSGI server (i.e., :mod:`paster`).
     ``timestamp``:
         If specified, this should mark the beginning of the profiling
         session--i.e., when Profile.run() was called.  This can be any format
@@ -129,4 +129,5 @@ class ProfilingSession(object):
 
     @property
     def uuid(self):
+        """ See :term:`session_uuid`. """
         return str(self._uuid)
