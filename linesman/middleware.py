@@ -1,3 +1,21 @@
+import cPickle
+import logging
+from datetime import datetime
+from os import makedirs
+from os.path import exists, join
+from tempfile import gettempdir
+
+import Image
+import networkx as nx
+from mako.lookup import TemplateLookup
+from paste.urlparser import StaticURLParser
+from pkg_resources import resource_filename
+from webob import Request, Response
+from webob.exc import HTTPNotFound
+
+from linesman import ProfilingSession, draw_graph
+
+
 try:
     # Python 2.7+
     from collections import OrderedDict
@@ -10,22 +28,7 @@ try:
 except ImportError:
     from profile import Profile
 
-from datetime import datetime
-from linesman import ProfilingSession, draw_graph
-from mako.lookup import TemplateLookup
-from os import makedirs
-from os.path import dirname, exists, join
-from paste.urlparser import StaticURLParser
-from pkg_resources import resource_filename
-from tempfile import gettempdir
-from webob import Request, Response
-from webob.exc import HTTPNotFound
 
-import cPickle
-import logging
-import Image
-import mimetypes
-import networkx as nx
 
 log = logging.getLogger(__name__)
 
@@ -33,10 +36,6 @@ log = logging.getLogger(__name__)
 GRAPH_DIR = join(gettempdir(), "linesman-graph")
 MEDIA_DIR = resource_filename("linesman", "media")
 TEMPLATES_DIR = resource_filename("linesman", "templates")
-
-try:
-    makedirs(GRAPH_DIR)
-except: pass
 
 def prepare_graph(source_graph, cutoff_time, break_cycles=False):
     """
@@ -68,6 +67,20 @@ def prepare_graph(source_graph, cutoff_time, break_cycles=False):
 
 
 class ProfilingMiddleware(object):
+    """
+    This wraps calls to the WSGI application with cProfile, storing the
+    output and providing useful graphs for the user to view.
+
+    ``app``:
+        WSGI application
+    ``profiler_path``:
+        Path relative to the root to look up.  For example, if your script is
+        mounted at the context `/someapp` and this variable is set to
+        `/__profiler__`, `/someapp/__profiler__` will match.
+    ``session_history_path``:
+        When storing persistant data, store the pickled data objects in this
+        file.
+    """
 
     def __init__(self, app,
                        profiler_path="/__profiler__",
@@ -76,7 +89,15 @@ class ProfilingMiddleware(object):
         self.profiler_path = profiler_path
         self.session_history_path = session_history_path
 
-        # Setup the Mako templates
+        # Attempt to create the GRAPH_DIR
+        if not exists(GRAPH_DIR):
+            try:
+                makedirs(GRAPH_DIR)
+            except IOError:
+                log.error("Could not create directory `%s'", GRAPH_DIR)
+                raise
+
+        # Setup the Mako template lookup
         self.template_lookup = TemplateLookup(directories=[TEMPLATES_DIR])
 
         # Try to read stored sessions on disk
@@ -88,6 +109,16 @@ class ProfilingMiddleware(object):
             self._session_history = OrderedDict()
 
     def __call__(self, environ, start_response):
+        """
+        This will be called when the application is being run.  This can be
+        either:
+
+            - a request to the __profiler__ framework to display profiled
+              information, or
+            - a normal request that will be profiled.
+
+        Returns the WSGI application.
+        """
         # If we're not accessing the profiler, profile the request.
         req = Request(environ)
         if req.path_info_peek() != self.profiler_path.strip('/'):
@@ -103,6 +134,8 @@ class ProfilingMiddleware(object):
             return _locals['app']
 
         req.path_info_pop()
+
+        # Ghetto routing to remove a potential dependency
         query_param = req.path_info_pop()
         if not query_param:
             wsgi_app = self.list_profiles(req)
@@ -118,24 +151,42 @@ class ProfilingMiddleware(object):
         return wsgi_app(environ, start_response)
 
     def get_template(self, template):
+        """
+        Uses mako templating lookups to retrieve the template file.  If the
+        file is ever changed underneath, this function will automatically
+        retrieve and recompile the new version.
+
+        ``template``:
+            Filename of the template, relative to the `linesman/templates`
+            directory.
+        """
         return self.template_lookup.get_template(template)
 
     def __flush_sessions(self):
-        """ Flushes all sessions to disk. """
+        """ Flushes all session data to disk. """
         with open(self.session_history_path, "w+b") as pickle_fd:
             cPickle.dump(self._session_history, pickle_fd)
 
     def _add_session(self, session):
-        """ Adds a session to the profiler's history. """
+        """ Adds session data to the profiler's history. """
         self._session_history[session.uuid] = session
         self.__flush_sessions()
 
     def _clear_sessions(self):
-        """ Removes all sessions from history. """
+        """ Removes all session data from history. """
         self._session_history.clear()
         self.__flush_sessions()
 
     def list_profiles(self, req):
+        """
+        Displays all available profiles in list format.
+        
+        ``req``:
+            :class:`webob.Request` containing the environment information from
+            the request itself.
+
+        Returns a WSGI application.
+        """
         resp = Response()
         resp.body = self.get_template('list.tmpl').render(
             history=self._session_history,
@@ -143,9 +194,32 @@ class ProfilingMiddleware(object):
         return resp
 
     def media(self, req):
+        """
+        Serves up static files relative to ``MEDIA_DIR``.
+        
+        ``req``:
+            :class:`webob.Request` containing the environment information from
+            the request itself.
+
+        Returns a WSGI application.
+        """
         return StaticURLParser(MEDIA_DIR)
 
     def render_graph(self, req):
+        """
+        Used to display rendered graphs; if the graph that the user is trying
+        to access does not exist--and the ``session_uuid`` exists in our
+        history--it will be rendered.
+
+        This also creates a thumbnail image, since some of these graphs can
+        grow to be extremely large.
+
+        ``req``:
+            :class:`webob.Request` containing the environment information from
+            the request itself.
+
+        Returns a WSGI application.
+        """
         path_info = req.path_info_peek()
         if '.' in path_info:
             session_uuid, ext = path_info.rsplit('.')
@@ -178,6 +252,16 @@ class ProfilingMiddleware(object):
         return StaticURLParser(GRAPH_DIR)
 
     def show_profile(self, req):
+        """
+        Displays specific profile information for the ``session_uuid``
+        specified in the path.
+
+        ``req``:
+            :class:`webob.Request` containing the environment information from
+            the request itself.
+
+        Returns a WSGI application.
+        """
         resp = Response()
         session_uuid = req.path_info_pop()
         if session_uuid not in self._session_history:

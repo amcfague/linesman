@@ -1,10 +1,10 @@
+import functools
+
+
 try:
     from cProfile import Profile
 except ImportError:
     from profile import Profile
-
-import functools
-import linesman
 
 
 def profiler(func):
