@@ -40,7 +40,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Liensman'
+project = u'Linesman'
 copyright = u'2011, Wireless Generation'
 
 # The version info for the project you're documenting, acts as replacement for
