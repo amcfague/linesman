@@ -2,12 +2,13 @@ Metadata-Version: 1.0
 Name: linesman
 Version: 0.1
 Summary: WSGI Profiling middleware
-Home-page: UNKNOWN
+Home-page: http://pypi.python.org/pypi/linesman
 Author: Andrew McFague
 Author-email: redmumba@gmail.com
 License: UNKNOWN
 Description: UNKNOWN
 Platform: UNKNOWN
+Classifier: Development Status :: 2 - Pre-Alpha
 Classifier: Intended Audience :: Developers
 Classifier: Programming Language :: Python
-Classifier: Topic :: Internet :: WWW/HTTP :: WSGI
+Classifier: Topic :: Internet :: WWW/HTTP :: WSGI :: Middleware

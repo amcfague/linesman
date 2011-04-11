@@ -20,7 +20,7 @@ setup(
     description='WSGI Profiling middleware',
     author='Andrew McFague',
     author_email='redmumba@gmail.com',
-    url='',
+    url='http://pypi.python.org/pypi/linesman',
     zip_safe=False,
     packages=find_packages(exclude=["ez_setup"]),
     package_data = {
