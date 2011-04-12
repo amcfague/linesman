@@ -207,7 +207,6 @@ class ProfilingMiddleware(object):
             filename = "%s.png" % session_uuid
             path = join(GRAPH_DIR, filename)
             if not exists(path):
-                session = self._session_history[session_uuid]
                 graph, root_nodes, removed_edges = prepare_graph(
                     session._graph, session.cutoff_time, False)
                 draw_graph(graph, path)
@@ -239,7 +238,7 @@ class ProfilingMiddleware(object):
         session_uuid = req.path_info_pop()
         if session_uuid not in self._session_history:
             resp.status = "404 Not Found"
-            resp.body = "Session `%s' not found." % session
+            resp.body = "Session `%s' not found." % session_uuid
         else:
             session = self._session_history[session_uuid]
             graph, root_nodes, removed_edges = prepare_graph(
