@@ -1,8 +1,7 @@
 import cPickle
 import logging
+import os
 from datetime import datetime
-from os import makedirs
-from os.path import exists, join
 from tempfile import gettempdir
 
 import Image
@@ -32,7 +31,7 @@ except ImportError:
 log = logging.getLogger(__name__)
 
 # Graphs
-GRAPH_DIR = join(gettempdir(), "linesman-graph")
+GRAPH_DIR = os.path.join(gettempdir(), "linesman-graph")
 MEDIA_DIR = resource_filename("linesman", "media")
 TEMPLATES_DIR = resource_filename("linesman", "templates")
 
@@ -62,9 +61,9 @@ class ProfilingMiddleware(object):
         self.session_history_path = session_history_path
 
         # Attempt to create the GRAPH_DIR
-        if not exists(GRAPH_DIR):
+        if not os.path.exists(GRAPH_DIR):
             try:
-                makedirs(GRAPH_DIR)
+                os.makedirs(GRAPH_DIR)
             except IOError:
                 log.error("Could not create directory `%s'", GRAPH_DIR)
                 raise
@@ -205,16 +204,16 @@ class ProfilingMiddleware(object):
             session = self._session_history[session_uuid]
 
             filename = "%s.png" % session_uuid
-            path = join(GRAPH_DIR, filename)
-            if not exists(path):
+            path = os.path.join(GRAPH_DIR, filename)
+            if not os.path.exists(path):
                 graph, root_nodes, removed_edges = prepare_graph(
                     session._graph, session.cutoff_time, False)
                 draw_graph(graph, path)
                 force_thumbnail_creation = True
 
             thumbnail_filename = "thumb-%s.png" % session_uuid
-            thumbnail_path = join(GRAPH_DIR, thumbnail_filename)
-            if not exists(thumbnail_path) or force_thumbnail_creation:
+            thumbnail_path = os.path.join(GRAPH_DIR, thumbnail_filename)
+            if not os.path.exists(thumbnail_path) or force_thumbnail_creation:
                 log.debug("Creating thumbnail for %s at %s.", session_uuid,
                                                               thumbnail_path)
                 im = Image.open(path, 'r')
