@@ -1,32 +1,75 @@
 <%def name="print_tree(node)">
-<ul>
-  <li><span class="func_name">${node | h}</span><span class="time">${graph.node[node].get('totaltime')}ms</span>
-  % for subnode in graph.neighbors(node):
+<%
+    node_obj = graph.node[node]
+    total_time_percentage = round((1 - node_obj.get('totaltime') / session.duration) * 100, 2)
+    inline_time_percentage = round(node_obj.get('inlinetime') / session.duration * 100, 2)
+%>
+<li class="open">
+  <div class="profile">
+    <div class="funcname">${node | n}</div>
+    <div class="right-box">
+      <div class="duration">${node_obj.get('totaltime')}s</div>
+      <div class="bar_container">
+        <div class="bar_inlinetime" style="width: ${inline_time_percentage}%;"></div>
+        <div class="bar_totaltime" style="width: ${total_time_percentage - inline_time_percentage}%;"></div>
+      </div>
+    </div>
+    <div class="clear_float"></div>
+  </div>
+% for subnode in graph.neighbors(node):
+  <ul>
   ${print_tree(subnode)}
-  % endfor
-</ul>
+  </ul>
+% endfor
+</li>
 </%def>
 
 <html>
 <head>
   <title>Linesman - Profile ${session.uuid}</title>
+  <link rel="stylesheet" href="../media/css/tree.css"/>
+  <script type="text/javascript" src='../media/js/jquery-1.5.2.min.js'></script>
+  <script type="text/javascript" src='../media/js/accordian.js'></script>
 </head>
 <body>
 
 <h1>Session ${session.uuid}</h1>
-<p>Session profile completed in <strong>${session.duration}ms</strong>.</p>
+<p>Session profile completed in <strong>${session.duration}s</strong>.</p>
 % if session.cutoff_percentage:
-<p>Calls that took less than <strong>${session.cutoff_percentage * 100}% of the total time (${session.cutoff_time}ms)</strong> have been ommitted from this page.</p>
+<p>Calls that took less than <strong>${session.cutoff_percentage * 100}% of the total time (${session.cutoff_time}s)</strong> have been ommitted from this page.</p>
 % endif
 
+<h2>Content</h2>
+<ul>
+  <li> <a href="#toc_callhierarchy">Call Hierarchy</a>
+  <li> <a href="#toc_callgraph">Call Graph</a>
+</ul>
 
-<h2>Call Graph</h2>
+<h2 id="toc_callhierarchy">Call Hierarchy</h2>
 
-<h3>Hierarchy</h3>
-
+<div class="profile">
+  <div class="funcname">Module.Function</div>
+  <div style="float: right; left: 60%; position: absolute; width: 30%;">
+    <div class="duration">Duration</div>
+    <div class="bar_container">Inline and Total Time</div>
+  </div>
+  <div class="clear_float"></div>
+</div>
+<ul id="nav">
 % for root_node in root_nodes:
 ${print_tree(root_node)}
 % endfor
+</ul>
+
+<div class="clear_float"></div>
+
+<h3>Inline and Total Time</h3>
+
+The graph shows two values: inline and total time:
+<ul>
+  <li> inline time is the time ONLY this function.
+  <li> total time is all the time spent in the function, including external function calls.
+</ul>
 
 <h3>Hierarchy Notes</h3>
 % if removed_edges:
@@ -40,11 +83,10 @@ ${print_tree(root_node)}
 <p>No notes.</p>
 % endif
 
-<h3>Graph Representation</h3>
+<h2 id="toc_callgraph">Call Graph</h2>
 
 <center>
   <a href="../graph/${session.uuid}.png">
-    <img style="padding: 1em; border: 1px solid black;" src="../graph/thumb-${session.uuid}.png"/>
+    <img id="callgraph" src="../graph/thumb-${session.uuid}.png"/>
   </a>
 </center>
-
