@@ -107,7 +107,9 @@ class ProfilingMiddleware(object):
 
         req.path_info_pop()
 
-        # Ghetto routing to remove a potential dependency
+        # We could import `routes` and use something like that here, but since
+        # not all frameworks use this, it might become an external dependency
+        # that isn't needed.  So parse the URL manually using :class:`webob`.
         query_param = req.path_info_pop()
         if not query_param:
             wsgi_app = self.list_profiles(req)
