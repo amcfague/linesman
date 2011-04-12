@@ -262,24 +262,24 @@ def prepare_graph(source_graph, cutoff_time, break_cycles=False):
     Returns a tuple of (new_graph, removed_edges)
     """
     # Always use a copy for destructive changes
-    g = source_graph.copy()
+    graph = source_graph.copy()
     cyclic_breaks = []
 
     # Remove nodes where the totaltime is greater than the cutoff time
-    g.remove_nodes_from([node for node, data in g.nodes(data=True)
+    graph.remove_nodes_from([node for node, data in graph.nodes(data=True)
                               if data.get('totaltime') < cutoff_time])
 
     # Break cycles
     if break_cycles:
-        for cycle in nx.simple_cycles(g):
+        for cycle in nx.simple_cycles(graph):
             u, v = cycle[0], cycle[1]
-            if g.has_edge(u, v):
-                g.remove_edge(u, v)
+            if graph.has_edge(u, v):
+                graph.remove_edge(u, v)
                 cyclic_breaks.append((u, v))
 
-    root_nodes = [node for node, degree in g.in_degree_iter() if degree == 0]
+    root_nodes = [node for node, degree in graph.in_degree_iter() if degree == 0]
 
-    return g, root_nodes, cyclic_breaks
+    return graph, root_nodes, cyclic_breaks
 
 
 def profiler_filter_factory(conf, **kwargs):
