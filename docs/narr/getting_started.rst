@@ -6,7 +6,12 @@ This document will cover setting up Linesman in your WSGI application.
 Installing Linesman
 -------------------
 
-To install Linesman, you will need to clone the repository and run::
+To install the **latest stable version of Linesman**, you can use::
+
+    $ easy_install -U linesman
+
+To install Linesman **from source**, you will need to clone the repository and
+run::
 
     $ python setup.py install
 
