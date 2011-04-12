@@ -273,8 +273,9 @@ def prepare_graph(source_graph, cutoff_time, break_cycles=False):
     if break_cycles:
         for cycle in nx.simple_cycles(g):
             u, v = cycle[0], cycle[1]
-            g.remove_edge(u, v)
-            cyclic_breaks.append((u, v))
+            if g.has_edge(u, v):
+                g.remove_edge(u, v)
+                cyclic_breaks.append((u, v))
 
     root_nodes = [node for node, degree in g.in_degree_iter() if degree == 0]
 
