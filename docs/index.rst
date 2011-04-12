@@ -6,10 +6,24 @@ Linesman Documentation
 can be configured entirely from any ``paster`` config, and aims to be a
 jack-of-all-trades when it comes to profiling WSGI apps.
 
+Unfortunately, there are only a few profilers available for Python, with the
+fastest and generally most popular one being `cProfile`.  However, the
+output can be very difficult to analyze without having substantial knowledge
+about what's going on in an application, which makes it difficult to use.
+
+There are a few select profile wrappers out there--`repoze.profile`,
+`keas.profile`, and `dozer` (which is still in alpha) all come to mind, but all
+either wrap the output from `cProfile` itself, or show incomplete information.
+`Linesman` aims to right this wrong.
+
 .. warning::
 
-   As with most plug-ins, this is *not* compatible with ``mod_wsgi`` due to it's
-   multi-process nature.  It is compatible with ``paster`` only!
+    As with most middleware, `linesman` is *not* compatible with ``mod_wsgi``
+    in a multi-process environment due to the shared nature between processes.
+    Running ``mod_wsgi`` with a single process should work, however.
+
+Overview
+--------
 
 This is the central hub for *all* Linesman documentation.  It covers:
 
