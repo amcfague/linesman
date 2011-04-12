@@ -18,6 +18,7 @@ setup(
     name='linesman',
     version='0.1',
     description='WSGI Profiling middleware',
+    long_description=open("README.rst", "r").read(),
     author='Andrew McFague',
     author_email='redmumba@gmail.com',
     url='http://pypi.python.org/pypi/linesman',

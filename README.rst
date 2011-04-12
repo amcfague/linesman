@@ -1,21 +1,9 @@
 ``linesman`` is a much needed profiler-for-WSGI applications.  It installs as
 middleware, can be configured entirely from any ``paster`` config, and aims to
-be a jack of all trades when it comes to profiling.
+be a jack-of-all-trades when it comes to profiling WSGI apps.
 
-What?
-=====
-
-``linesman`` is a name given to people who inspect electrical ``Pylons``, and
-was a meek attempt at having a relevant library name.  At the very least, no
-library exists with that name--so I'd consider it a win.
-
-The purpose of this project is to provide a tool that can be used to profile an
-interactive WSGI application without interrupting workflow, visualizing your
-profiling data, and give a dynamic, configurable interface for filtering out
-cluttered information.
-
-Reasoning behind writing this library
-=====================================
+Reasoning behind this library
+=============================
 
 One of my team's stories at work was to investigate existing Python profiling
 tools for use with some of our new web stacks (all in Pylons).  I looked at a
@@ -30,3 +18,39 @@ Many of the tools simply outputted the ``pstats`` object from ``cProfile``,
 which can be difficult to parse, and even more difficult to identify the call
 order.  Considering that ``cProfile`` provided all the information needed, I
 figured it would be just as easy to write our own middleware.
+
+``linesman`` is a name given to people who inspect electrical ``Pylons``, and
+was a meek attempt at having a relevant library name.
+
+Setting up middleware
+=====================
+
+Now, you'll need to tell your WSGI application how to use Linesman.  Assuming
+you're using Paster, you can do this very easily in your `development.ini` (or
+similar) config file.  Add a new filter section::
+
+    [filter:linesman]
+    use = egg:linesman#profiler
+
+Then, find the section for your specific application.  Typically, it will have
+a section header that looks like ``[app:main]``.  Add the following config
+option somewhere within this section::
+
+    filter-with = linesman
+
+Wallah!  Once you start your paster server, you'll be all set.  Verify that all
+is working correctly by accessing pages on your server.  This will also create
+profile entries for the next step.
+
+Accessing the profiles
+======================
+
+This will assume that your application is mounted at the root directory,
+`/`, and that your server is running on `localhost` at port 5000.  If
+not, make sure you adjust your URLs accordingly.
+
+Access the URL at http://127.0.0.1:5000/__profiler__, which should present
+you with a list of profiles and times, with a link to the `stats` page.  If you
+can see this (and view the profiles), then you're all set!
+
+Happy profiling!
