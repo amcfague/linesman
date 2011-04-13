@@ -4,23 +4,24 @@
     total_time_percentage = round(node_obj.get('totaltime') / session.duration * 100, 2)
     inline_time_percentage = round(node_obj.get('inlinetime') / session.duration * 100, 2)
 %>
-<table class="profile-stats expanded">
-  <tr class="row">
-    <td class="module" style="padding-left: ${level}em;">${node | h}</td>
-    <td class="time">${node_obj.get('totaltime')}</td>
-    <td class="graph">
-      <div class="bar">
-        <div class="bar-inlinetime" style="width: ${inline_time_percentage}%;"></div>
-        <div class="bar-totaltime" style="width: ${total_time_percentage - inline_time_percentage}%;"></div>
-      </div>
-    </td>
-  </tr>
+<li class="profile-stats open">
+  <span class="row">
+    <span class="module">${node | h}</span>
+    <span class="measurements">
+      <span class="time">${node_obj.get('totaltime')}</span>
+      <span class="graph">
+        <span class="bar">
+          <span class="bar-inlinetime" style="width: ${inline_time_percentage}%;">&nbsp</span><span class="bar-totaltime" style="width: ${total_time_percentage - inline_time_percentage}%;">&nbsp</span>
+        </span>
+      </span>
+    </span>
+  </span>
+  <ul>
 % for subnode in graph.neighbors(node):
-  <tr>
     ${print_tree(subnode, level + 1)}
-  </tr>
 % endfor
-</table>
+  </ul>
+</li>
 </%def>
 
 <html>
@@ -46,11 +47,11 @@
 
 <h2 id="toc_callhierarchy">Call Hierarchy</h2>
 
-<div id="callhierarchy">
+<ul id="callhierarchy">
 % for root_node in root_nodes:
 ${print_tree(root_node)}
 % endfor
-</div>
+</ul>
 
 <div class="clear_float"></div>
 

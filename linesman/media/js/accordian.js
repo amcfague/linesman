@@ -1,7 +1,7 @@
 $(function(){
     var slideSpeed = "normal";
-    $('#nav a').click(function() {
-        // Navigate up to the nearest parent list item
+    $('#callhierarchy .row').click(function() {
+        // callhierarchyigate up to the nearest parent list item
         var parent_li = $(this).closest('li');
         if ($(parent_li).children('ul').html() != null) {
             $(parent_li).parent('ul').children('li').children('ul').hide(slideSpeed);
@@ -24,7 +24,7 @@ $(function(){
         }
     });
 
-    $('#nav li').each(function() {
+    $('#callhierarchy li').each(function() {
         // Is this a leaf?  If so, set the "leaf" class.
         if($(this).find('ul').length == 0) {
             $(this).removeClass('open closed');
