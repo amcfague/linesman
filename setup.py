@@ -23,7 +23,7 @@ setup(
     author_email='redmumba@gmail.com',
     url='http://pypi.python.org/pypi/linesman',
     zip_safe=False,
-    packages=find_packages(exclude=["ez_setup"]),
+    packages=find_packages(exclude=["ez_setup", "linesman.tests.*"]),
     package_data = {
         'linesman': ['templates/*', 'media/*'],
     },
