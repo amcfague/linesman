@@ -1,27 +1,26 @@
-<%def name="print_tree(node)">
+<%def name="print_tree(node, level=0)">
 <%
     node_obj = graph.node[node]
-    total_time_percentage = round((1 - node_obj.get('totaltime') / session.duration) * 100, 2)
+    total_time_percentage = round(node_obj.get('totaltime') / session.duration * 100, 2)
     inline_time_percentage = round(node_obj.get('inlinetime') / session.duration * 100, 2)
 %>
-<li class="open">
-  <div class="profile">
-    <div class="funcname"><a>${node | h}</a></div>
-    <div class="right-box">
-      <div class="duration">${node_obj.get('totaltime')}s</div>
-      <div class="bar_container">
-        <div class="bar_inlinetime" style="width: ${inline_time_percentage}%;"></div>
-        <div class="bar_totaltime" style="width: ${total_time_percentage - inline_time_percentage}%;"></div>
+<table class="profile-stats expanded">
+  <tr class="row">
+    <td class="module" style="padding-left: ${level}em;">${node | h}</td>
+    <td class="time">${node_obj.get('totaltime')}</td>
+    <td class="graph">
+      <div class="bar">
+        <div class="bar-inlinetime" style="width: ${inline_time_percentage}%;"></div>
+        <div class="bar-totaltime" style="width: ${total_time_percentage - inline_time_percentage}%;"></div>
       </div>
-    </div>
-    <div class="clear_float"></div>
-  </div>
+    </td>
+  </tr>
 % for subnode in graph.neighbors(node):
-  <ul>
-  ${print_tree(subnode)}
-  </ul>
+  <tr>
+    ${print_tree(subnode, level + 1)}
+  </tr>
 % endfor
-</li>
+</table>
 </%def>
 
 <html>
@@ -47,19 +46,11 @@
 
 <h2 id="toc_callhierarchy">Call Hierarchy</h2>
 
-<div class="profile">
-  <div class="funcname">Module.Function</div>
-  <div style="float: right; left: 60%; position: absolute; width: 30%;">
-    <div class="duration">Duration</div>
-    <div class="bar_container">Inline and Total Time</div>
-  </div>
-  <div class="clear_float"></div>
-</div>
-<ul id="nav">
+<div id="callhierarchy">
 % for root_node in root_nodes:
 ${print_tree(root_node)}
 % endfor
-</ul>
+</div>
 
 <div class="clear_float"></div>
 
