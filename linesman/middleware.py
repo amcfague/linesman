@@ -197,6 +197,9 @@ class ProfilingMiddleware(object):
         path_info = req.path_info_peek()
         if '.' in path_info:
             session_uuid, seperator, ext = path_info.rpartition('.')
+        else:
+            session_uuid = path_info
+
         if path_info.startswith("thumb-"):
             session_uuid = session_uuid[6:]
 
