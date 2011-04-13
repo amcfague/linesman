@@ -1,7 +1,6 @@
 setup.cfg
 setup.py
 linesman/__init__.py
-linesman/decorators.py
 linesman/middleware.py
 linesman.egg-info/PKG-INFO
 linesman.egg-info/SOURCES.txt
@@ -10,3 +9,7 @@ linesman.egg-info/entry_points.txt
 linesman.egg-info/not-zip-safe
 linesman.egg-info/requires.txt
 linesman.egg-info/top_level.txt
+linesman/tests/__init__.py
+linesman/tests/test_graphs.py
+linesman/tests/test_linesman_profiler.py
+linesman/tests/test_middleware.py
