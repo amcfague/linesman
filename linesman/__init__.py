@@ -8,6 +8,22 @@ import networkx as nx
 log = logging.getLogger(__name__)
 
 
+def _generate_key(stat):
+    code = stat.code
+
+    # First, check if its built-in (i.e., code is a string)
+    if isinstance(code, str):
+        return code
+
+    # If we have a module, generate the module name (a.b.c, etc..)
+    module = getmodule(code)
+    if module:
+        return ".".join((module.__name__, code.co_name))
+
+    # Otherwise, return a path based on the filename and function name.
+    return "%s.%s" % (code.co_filename, code.co_name)
+
+
 def draw_graph(graph, output_path):
     """
     Draws a networkx graph to disk using the `dot` format.
@@ -35,21 +51,6 @@ def create_graph(stats):
     Returns a :class:`networkx.DiGraph` containing the callgraph.
     """
 
-    def generate_key(stat):
-        code = stat.code
-
-        # First, check if its built-in (i.e., code is a string)
-        if isinstance(code, str):
-            return code
-
-        # If we have a module, generate the module name (a.b.c, etc..)
-        module = getmodule(code)
-        if module:
-            return ".".join((module.__name__, code.co_name))
-
-        # Otherwise, return a path based on the filename and function name.
-        return "%s.%s" % (code.co_filename, code.co_name)
-
     # Create a graph; dot graphs need names, so just use `G' so that
     # pygraphviz doesn't complain when we render it.
     g = nx.DiGraph(name="G")
@@ -59,7 +60,7 @@ def create_graph(stats):
     # the library will always have the original callgraph, which can be
     # manipulated for display purposes later.
     for stat in stats:
-        caller_key = generate_key(stat)
+        caller_key = _generate_key(stat)
 
         attrs = {
             'callcount': stat.callcount,
@@ -71,7 +72,7 @@ def create_graph(stats):
 
         # Add all the calls as edges
         for call in stat.calls or []:
-            callee_key = generate_key(call)
+            callee_key = _generate_key(call)
 
             call_attrs = {
                 'callcount': call.callcount,
