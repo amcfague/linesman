@@ -1,10 +1,11 @@
-<%def name="print_tree(node, level=0)">
+<%def name="print_tree(node)">
 <%
     node_obj = graph.node[node]
     total_time_percentage = round(node_obj.get('totaltime') / session.duration * 100, 2)
     inline_time_percentage = round(node_obj.get('inlinetime') / session.duration * 100, 2)
+    open_or_leaf = 'open' if graph.neighbors(node) else 'leaf'
 %>
-<li class="profile-stats open">
+<li class="profile-stats ${open_or_leaf}">
   <span class="row">
     <span class="module">${node | h}</span>
     <span class="measurements">
@@ -18,7 +19,7 @@
   </span>
   <ul>
 % for subnode in graph.neighbors(node):
-    ${print_tree(subnode, level + 1)}
+    ${print_tree(subnode)}
 % endfor
   </ul>
 </li>
