@@ -1,73 +1,12 @@
-#callgraph {
-    padding: 1em;
-    border: 1px solid black;
-    }
-#nav a:link, a:visited, a:hover, a:active {
-    color: black;
-    text-decoration: none;
-    }
-#nav ul {
-    padding-top: 2px;
-    }
-#nav li.open {
-    list-style-image: url('../images/open.gif');
-    list-style-type: none;
-    }
-#nav li.closed {
-    list-style-image: url('../images/closed.gif');
-    list-style-type: none;
-    }
-#nav li.leaf {
-    list-style-image: none;
-    list-style-type: none;
-    }
-#nav ul {
-    padding-left: 8;
-    }
-div.profile {
-    font-family: monospace;
-    font-size: medium;
-    }
-div.profile .funcname {
-    float: left;
-    overflow: hidden;
-    width: 60%;
-    }
-div.profile .right-box {
-    position: relative;
-    float:right;
-}
-div.profile .duration {
-    position:relative;
-    float: left;
-    margin-right: 1em;
-    width: 75px;
-    }
-div.profile .bar_container {
-    position:relative;
-    float: left;
-    width: 300px;
-    }
-div.profile .bar_inlinetime {
-    float: left;
-    position: relative;
-    background: gray;
-    border-color: gray;
-    border-style: solid;
-    color: black;
-    height: 10px;
-    text-align: center;
-    }
-div.profile .bar_totaltime {
-    float: left;
-    position: relative;
-    background: black;
-    border-color: black;
-    border-style: solid;
-    color: gray;
-    height: 10px;
-    text-align: center;
-    }
-.clear_float {
-    clear: both;
-    }
+#callgraph { border: 1px solid black; padding: 1em; }
+
+#callhierarchy { font-family: monospace; font-size: small; }
+#callhierarchy .expanded { }
+#callhierarchy .profile-stats { width: 100%; padding: 0; cellspacing: 0; border: 0; }
+#callhierarchy .profile-stats .row:hover { background-color: #000; }
+#callhierarchy .profile-stats .module { width: 70%;}
+#callhierarchy .profile-stats .time { width: 100px; }
+#callhierarchy .profile-stats .graph { }
+#callhierarchy div.bar { relative: absolute;}
+#callhierarchy div.bar-inlinetime { background-color: gray; float: left; height: 15px; }
+#callhierarchy div.bar-totaltime { background-color: black; float: left; height: 15px; }
