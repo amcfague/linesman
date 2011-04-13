@@ -1,6 +1,7 @@
 from cProfile import Profile
 from mock import Mock, patch
 from nose.tools import assert_equals, raises
+from paste.urlmap import URLMap
 from unittest import TestCase
 from webtest import TestApp
 import cPickle
@@ -83,7 +84,26 @@ class TestProfilingMiddleware(TestCase):
                 os.remove(temp_filename)
             except: pass
 
-    def test_middleware_app(self):
+    def test_middleware_app_non_profiler(self):
+        temp_filename = get_temporary_filename()
+        profiler_path = "/__profiler__"
+        try:
+            # Use a sample WSGI app
+            map_app = URLMap()
+            pm = linesman.middleware.ProfilingMiddleware(
+                                        map_app,
+                                        profiler_path=profiler_path,
+                                        session_history_path=temp_filename)
+            app = TestApp(pm)
+            app.get("/not/profiled/url", status=404)
+        finally:
+            # Clean up after ourselves
+            try:
+                os.remove(temp_filename)
+            except: pass
+
+
+    def test_middleware_app_profiler(self):
         temp_filename = get_temporary_filename()
         profiler_path = "/__profiler__"
         try:
