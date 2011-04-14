@@ -279,6 +279,12 @@ def prepare_graph(source_graph, cutoff_time, break_cycles=False):
     """
     # Always use a copy for destructive changes
     graph = source_graph.copy()
+
+    max_totaltime = max(data['totaltime'] for node, data in graph.nodes(data = True))
+    for node, data in graph.nodes(data=True):
+        data['color'] = "%f 1.0 1.0" % ((1-(data['totaltime'] / max_totaltime)) / 3)
+        data['style'] = 'filled'
+
     cyclic_breaks = []
 
     # Remove nodes where the totaltime is greater than the cutoff time

@@ -36,7 +36,6 @@ def draw_graph(graph, output_path):
     nx.to_agraph(graph).draw(output_path, prog="dot")
     log.info("Wrote output to `%s'" % output_path)
 
-
 def create_graph(stats):
     """
     Given an instance of :class:`pstats.Pstats`, this will use the generated
@@ -59,6 +58,8 @@ def create_graph(stats):
     # the nodes, even ones which might be pruned later.  This is so that
     # the library will always have the original callgraph, which can be
     # manipulated for display purposes later.
+    duration = max([stat.totaltime for stat in stats])
+
     for stat in stats:
         caller_key = _generate_key(stat)
 
