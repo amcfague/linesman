@@ -122,8 +122,7 @@ class ProfilingSession(object):
 
         # Some profiling session attributes need to be calculated
         self.duration = max([stat.totaltime for stat in stats])
-        self.cutoff_percentage = 0.1
-        self.cutoff_time = self.duration * self.cutoff_percentage
+
         self.timestamp = timestamp
 
         self._graph = create_graph(stats)

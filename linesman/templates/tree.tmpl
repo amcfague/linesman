@@ -36,9 +36,10 @@
 
 <h1>Session ${session.uuid}</h1>
 <p>Session profile completed in <strong>${session.duration}s</strong>.</p>
-% if session.cutoff_percentage:
-<p>Calls that took less than <strong>${session.cutoff_percentage * 100}% of the total time (${session.cutoff_time}s)</strong> have been ommitted from this page.</p>
-% endif
+<p>Calls that took less than <strong>${cutoff_percentage * 100}% of the total time (${cutoff_time/1e9}s)</strong> have been ommitted from this page.</p>
+<form name='set_cutoff' method='get'>
+Cutoff Percentage: <input type='text' name='cutoff_percent' />% <input type="submit" value="Redisplay" />
+</form>
 
 <h2>Content</h2>
 <ul>
@@ -79,7 +80,7 @@ The graph shows two values: inline and total time:
 <h2 id="toc_callgraph">Call Graph</h2>
 
 <center>
-  <a href="../graph/${session.uuid}.png">
-    <img id="callgraph" src="../graph/thumb-${session.uuid}.png"/>
+  <a href="../graph/${session.uuid}--${cutoff_time}.png">
+    <img id="callgraph" src="../graph/thumb-${session.uuid}--${cutoff_time}.png"/>
   </a>
 </center>

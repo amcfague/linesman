@@ -35,6 +35,7 @@ GRAPH_DIR = os.path.join(gettempdir(), "linesman-graph")
 MEDIA_DIR = resource_filename("linesman", "media")
 TEMPLATES_DIR = resource_filename("linesman", "templates")
 
+CUTOFF_TIME_UNITS = 1e9 # Nanoseconds per second
 
 class ProfilingMiddleware(object):
     """
@@ -195,28 +196,33 @@ class ProfilingMiddleware(object):
         Returns a WSGI application.
         """
         path_info = req.path_info_peek()
-        if '.' in path_info:
-            session_uuid, seperator, ext = path_info.rpartition('.')
-        else:
-            session_uuid = path_info
-
+        if '.' not in path_info:
+            return StaticURLParser(GRAPH_DIR)
+        
+        fileid, _, ext = path_info.rpartition('.')
         if path_info.startswith("thumb-"):
-            session_uuid = session_uuid[6:]
+            fileid = fileid[6:]
+
+        if '--' not in fileid:
+            return StaticURLParser(GRAPH_DIR)
+
+        session_uuid, _, cutoff_time = fileid.rpartition('--')
+        cutoff_time = int(cutoff_time)
 
         # We now have the session_uuid
         if session_uuid in self._session_history:
             force_thumbnail_creation = False
             session = self._session_history[session_uuid]
 
-            filename = "%s.png" % session_uuid
+            filename = "%s.png" % fileid
             path = os.path.join(GRAPH_DIR, filename)
             if not os.path.exists(path):
                 graph, root_nodes, removed_edges = prepare_graph(
-                    session._graph, session.cutoff_time, False)
+                    session._graph, cutoff_time, False)
                 draw_graph(graph, path)
                 force_thumbnail_creation = True
 
-            thumbnail_filename = "thumb-%s.png" % session_uuid
+            thumbnail_filename = "thumb-%s.png" % fileid
             thumbnail_path = os.path.join(GRAPH_DIR, thumbnail_filename)
             if not os.path.exists(thumbnail_path) or force_thumbnail_creation:
                 log.debug("Creating thumbnail for %s at %s.", session_uuid,
@@ -244,13 +250,20 @@ class ProfilingMiddleware(object):
             resp.status = "404 Not Found"
             resp.body = "Session `%s' not found." % session_uuid
         else:
+            cutoff_percentage = float(req.str_params.get('cutoff_percent', 5) or 5)/100
             session = self._session_history[session_uuid]
+            cutoff_time = int(session.duration * cutoff_percentage * CUTOFF_TIME_UNITS)
             graph, root_nodes, removed_edges = prepare_graph(
-                session._graph, session.cutoff_time, True)
+                session._graph, cutoff_time, True)
             resp.body = self.get_template('tree.tmpl').render(
-                session=session, graph=graph, root_nodes=root_nodes,
+                session=session,
+                graph=graph,
+                root_nodes=root_nodes,
                 removed_edges=removed_edges,
-                application_url=self.profiler_path)
+                application_url=self.profiler_path,
+                cutoff_percentage = cutoff_percentage,
+                cutoff_time = cutoff_time
+            )
 
         return resp
 
@@ -270,7 +283,7 @@ def prepare_graph(source_graph, cutoff_time, break_cycles=False):
 
     # Remove nodes where the totaltime is greater than the cutoff time
     graph.remove_nodes_from([node for node, data in graph.nodes(data=True)
-                              if data.get('totaltime') < cutoff_time])
+                              if int(data.get('totaltime')*CUTOFF_TIME_UNITS) < cutoff_time])
 
     # Break cycles
     if break_cycles:
