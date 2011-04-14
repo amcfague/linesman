@@ -1,24 +1,28 @@
 #callgraph { border: 1px solid black; padding: 1em; }
 
 #callhierarchy { font-family: monospace; font-size: small; }
-#callhierarchy .expanded { }
-#callhierarchy .profile-stats { width: 100%; padding-top: 3px; border: 0; }
+#callhierarchy li { width: 100%; padding-top: 3px; border: 0; }
 #callhierarchy li.open { list-style-image: url('../images/open.gif'); }
 #callhierarchy li.closed { list-style-image: url('../images/closed.gif'); }
 #callhierarchy li.leaf { list-style: square; }
-#callhierarchy .profile-stats ul { padding-left:5px; }
-#callhierarchy .profile-stats .row { width: 100%; display: inline-block; }
-#callhierarchy .profile-stats .row:hover { background-color: #cccccc; }
-#callhierarchy .profile-stats .module { width: 70%; }
-#callhierarchy .profile-stats .measurements {
+#callhierarchy .header { list-style: none; font-weight: bold; }
+#callhierarchy ul { padding-left:5px; }
+#callhierarchy .row { width: 100%; display: inline-block; }
+#callhierarchy .row:hover { background-color: #cccccc; }
+#callhierarchy .module { width: 70%; }
+#callhierarchy .measurements {
     display: inline-block;
     float: right;
 }
-#callhierarchy .profile-stats .time {
+#callhierarchy .count {
     width: 100px;
     display: inline-block;
 }
-#callhierarchy .profile-stats .graph {
+#callhierarchy .time {
+    width: 100px;
+    display: inline-block;
+}
+#callhierarchy .graph {
     width: 200px;
     display: inline-block;
 }
@@ -33,5 +37,6 @@
     display: inline-block;
     padding: 0;
     margin: 0;
+    color: white;
 }
 

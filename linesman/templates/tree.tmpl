@@ -9,6 +9,9 @@
   <span class="row">
     <span class="module">${node | h}</span>
     <span class="measurements">
+      % if node_obj.get('callcount') > 1:
+      <span class="count">x${node_obj.get('callcount')}</span>
+      % endif
       <span class="time">${node_obj.get('totaltime')}</span>
       <span class="graph">
         <span class="bar">
@@ -50,6 +53,20 @@ Cutoff Percentage: <input type='text' name='cutoff_percent' />% <input type="sub
 <h2 id="toc_callhierarchy">Call Hierarchy</h2>
 
 <ul id="callhierarchy">
+<li class="header">
+  <span class="row">
+    <span class="module">Function Name</span>
+    <span class="measurements">
+      <span class="count">Call Count</span>
+      <span class="time">Total Time</span>
+      <span class="graph">
+        <span class="bar">
+          <span class="bar-inlinetime" style="width: 50%;">Inline Time %</span><span class="bar-totaltime" style="width: 50%;">Total Time %</span>
+        </span>
+      </span>
+    </span>
+  </span>
+</li>
 % for root_node in root_nodes:
 ${print_tree(root_node)}
 % endfor
