@@ -80,6 +80,9 @@ class ProfilingMiddleware(object):
             log.debug("`%s' does not exist; creating new dictionary.",
                                                 self.session_history_path)
             self._session_history = OrderedDict()
+        except ValueError as exc:
+            raise ValueError("Could not unpickle data; please remove `%s`." % \
+                      self.session_history_path) 
 
     def __call__(self, environ, start_response):
         """
