@@ -162,8 +162,8 @@ class ProfilingMiddleware(object):
 
         Returns a WSGI application.
         """
-        resp = Response()
-        resp.body = self.get_template('list.tmpl').render(
+        resp = Response(charset='utf8')
+        resp.unicode_body = self.get_template('list.tmpl').render_unicode(
             history=self._session_history,
             application_url=req.application_url)
         return resp
@@ -244,7 +244,7 @@ class ProfilingMiddleware(object):
 
         Returns a WSGI application.
         """
-        resp = Response()
+        resp = Response(charset='utf8')
         session_uuid = req.path_info_pop()
         if session_uuid not in self._session_history:
             resp.status = "404 Not Found"
@@ -255,7 +255,7 @@ class ProfilingMiddleware(object):
             cutoff_time = int(session.duration * cutoff_percentage * CUTOFF_TIME_UNITS)
             graph, root_nodes, removed_edges = prepare_graph(
                 session._graph, cutoff_time, True)
-            resp.body = self.get_template('tree.tmpl').render(
+            resp.unicode_body = self.get_template('tree.tmpl').render_unicode(
                 session=session,
                 graph=graph,
                 root_nodes=root_nodes,
