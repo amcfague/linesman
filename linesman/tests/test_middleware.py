@@ -122,7 +122,6 @@ class TestProfilingMiddleware(TestCase):
             app.get('/__profiler__/media/js/notafile', status=404)
             app.get('/__profiler__/profiles/notavaliduuids', status=404)
 
-            app.get('/__profiler__/graph/%s.png' % session.uuid)
             app.get('/__profiler__/media/js/accordian.js')
             app.get('/__profiler__/profiles/%s' % session.uuid)
             resp = app.get('/__profiler__')
