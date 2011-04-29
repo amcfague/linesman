@@ -143,7 +143,7 @@ class ProfilingMiddleware(object):
     def __flush_sessions(self):
         """ Flushes all session data to disk. """
         with open(self.session_history_path, "w+b") as pickle_fd:
-            cPickle.dump(self._session_history, pickle_fd)
+            cPickle.dump(self._session_history, pickle_fd, cPickle.HIGHEST_PROTOCOL)
 
     def _add_session(self, session):
         """ Adds session data to the profiler's history. """
