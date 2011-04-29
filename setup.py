@@ -7,7 +7,7 @@ except ImportError:
 
 import sys
 
-install_requires = ["mako", "networkx", "PIL", "pygraphviz"]
+install_requires = ["mako", "networkx", "PIL", "pygraphviz", 'Paste']
 
 # ordereddict is required for versions < 2.7; its included in collections in
 # versions 2.7+ and 3.0+
@@ -23,7 +23,7 @@ setup(
     author_email='redmumba@gmail.com',
     url='http://pypi.python.org/pypi/linesman',
     test_suite='nose.collector',
-    tests_requires=['nose', 'mock', 'webtest'],
+    tests_require=['nose', 'mock', 'webtest'],
     zip_safe=False,
     packages=find_packages(exclude=["ez_setup", "linesman.tests.*"]),
     package_data = {
