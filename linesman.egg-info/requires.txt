@@ -1,4 +1,5 @@
 mako
 networkx
 PIL
+pygraphviz
 ordereddict
