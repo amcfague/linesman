@@ -13,14 +13,8 @@ from webob import Request, Response
 from webob.exc import HTTPNotFound
 
 from linesman import ProfilingSession, draw_graph
+import linesman.backends
 
-
-try:
-    # Python 2.7+
-    from collections import OrderedDict
-except ImportError:
-    # Python 2.4+ (need to easy_install)
-    from ordereddict import OrderedDict
 
 try:
     from cProfile import Profile
@@ -37,6 +31,7 @@ TEMPLATES_DIR = resource_filename("linesman", "templates")
 
 CUTOFF_TIME_UNITS = 1e9 # Nanoseconds per second
 
+
 class ProfilingMiddleware(object):
     """
     This wraps calls to the WSGI application with cProfile, storing the
@@ -48,18 +43,23 @@ class ProfilingMiddleware(object):
         Path relative to the root to look up.  For example, if your script is
         mounted at the context `/someapp` and this variable is set to
         `/__profiler__`, `/someapp/__profiler__` will match.
-    ``session_history_path``:
-        When storing persistant data, store the pickled data objects in this
-        file.
+    ``backend``:
+        This should be a full module path, with the function or class name
+        specified after the trailing `:`.  This function or class should return
+        an implementation of :class:`~linesman.backend.Backend`.
     """
 
     def __init__(self, app,
                        profiler_path="/__profiler__",
-                       session_history_path="sessions.dat",
+                       backend="linesman.backends.pickle:PickleBackend",
                        **kwargs):
         self.app = app
         self.profiler_path = profiler_path
-        self.session_history_path = session_history_path
+
+        # Setup the backend
+        module_name, sep, class_name = backend.rpartition(":")
+        module = __import__(module_name, fromlist=[class_name], level=0)
+        self._backend = getattr(module, class_name)(**kwargs)
 
         # Attempt to create the GRAPH_DIR
         if not os.path.exists(GRAPH_DIR):
@@ -72,17 +72,8 @@ class ProfilingMiddleware(object):
         # Setup the Mako template lookup
         self.template_lookup = TemplateLookup(directories=[TEMPLATES_DIR])
 
-        # Try to read stored sessions on disk
-        try:
-            with open(self.session_history_path, "rb") as pickle_fd:
-                self._session_history = cPickle.load(pickle_fd)
-        except IOError:
-            log.debug("`%s' does not exist; creating new dictionary.",
-                                                self.session_history_path)
-            self._session_history = OrderedDict()
-        except ValueError as exc:
-            raise ValueError("Could not unpickle data; please remove `%s`." % \
-                      self.session_history_path) 
+        # Set it up
+        self._backend.setup()
 
     def __call__(self, environ, start_response):
         """
@@ -105,7 +96,7 @@ class ProfilingMiddleware(object):
                 "app = self.app(environ, start_response)", globals(), _locals)
             stats = prof.getstats()
             session = ProfilingSession(stats, environ, start_timestamp)
-            self._add_session(session)
+            self._backend.add(session)
 
             return _locals['app']
 
@@ -140,21 +131,6 @@ class ProfilingMiddleware(object):
         """
         return self.template_lookup.get_template(template)
 
-    def __flush_sessions(self):
-        """ Flushes all session data to disk. """
-        with open(self.session_history_path, "w+b") as pickle_fd:
-            cPickle.dump(self._session_history, pickle_fd, cPickle.HIGHEST_PROTOCOL)
-
-    def _add_session(self, session):
-        """ Adds session data to the profiler's history. """
-        self._session_history[session.uuid] = session
-        self.__flush_sessions()
-
-    def _clear_sessions(self):
-        """ Removes all session data from history. """
-        self._session_history.clear()
-        self.__flush_sessions()
-
     def list_profiles(self, req):
         """
         Displays all available profiles in list format.
@@ -166,8 +142,9 @@ class ProfilingMiddleware(object):
         Returns a WSGI application.
         """
         resp = Response(charset='utf8')
+        session_history = self._backend.get_all()
         resp.unicode_body = self.get_template('list.tmpl').render_unicode(
-            history=self._session_history,
+            history=session_history,
             application_url=req.application_url)
         return resp
 
@@ -213,9 +190,9 @@ class ProfilingMiddleware(object):
         cutoff_time = int(cutoff_time)
 
         # We now have the session_uuid
-        if session_uuid in self._session_history:
+        session = self._backend.get(session_uuid)
+        if session:
             force_thumbnail_creation = False
-            session = self._session_history[session_uuid]
 
             filename = "%s.png" % fileid
             path = os.path.join(GRAPH_DIR, filename)
@@ -249,12 +226,12 @@ class ProfilingMiddleware(object):
         """
         resp = Response(charset='utf8')
         session_uuid = req.path_info_pop()
-        if session_uuid not in self._session_history:
+        session = self._backend.get(session_uuid)
+        if not session:
             resp.status = "404 Not Found"
             resp.body = "Session `%s' not found." % session_uuid
         else:
             cutoff_percentage = float(req.str_params.get('cutoff_percent', 5) or 5)/100
-            session = self._session_history[session_uuid]
             cutoff_time = int(session.duration * cutoff_percentage * CUTOFF_TIME_UNITS)
             graph, root_nodes, removed_edges = prepare_graph(
                 session._graph, cutoff_time, True)

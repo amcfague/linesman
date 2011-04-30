@@ -1,6 +1,6 @@
 Metadata-Version: 1.0
 Name: linesman
-Version: 0.1.dev
+Version: 0.2.dev
 Summary: WSGI Profiling middleware
 Home-page: http://pypi.python.org/pypi/linesman
 Author: Andrew McFague
@@ -37,14 +37,14 @@ Description: ``linesman`` is a much needed profiler-for-WSGI applications.  It i
         you're using Paster, you can do this very easily in your `development.ini` (or
         similar) config file.  Add a new filter section::
         
-            [filter:linesman]
-            use = egg:linesman#profiler
+        [filter:linesman]
+        use = egg:linesman#profiler
         
         Then, find the section for your specific application.  Typically, it will have
         a section header that looks like ``[app:main]``.  Add the following config
         option somewhere within this section::
         
-            filter-with = linesman
+        filter-with = linesman
         
         Wallah!  Once you start your paster server, you'll be all set.  Verify that all
         is working correctly by accessing pages on your server.  This will also create

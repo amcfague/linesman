@@ -9,6 +9,9 @@ linesman.egg-info/entry_points.txt
 linesman.egg-info/not-zip-safe
 linesman.egg-info/requires.txt
 linesman.egg-info/top_level.txt
+linesman/backends/__init__.py
+linesman/backends/pickle.py
+linesman/backends/sqlite.py
 linesman/tests/__init__.py
 linesman/tests/test_graphs.py
 linesman/tests/test_linesman_profiler.py

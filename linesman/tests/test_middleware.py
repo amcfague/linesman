@@ -11,6 +11,14 @@ import os
 import tempfile
 import uuid
 
+try:
+    # Python 2.7+
+    from collections import OrderedDict
+except ImportError:
+    # Python 2.4+
+    from ordereddict import OrderedDict
+
+
 def generate_profiler_entry():
     def func():
         a = 1 + 2
@@ -40,44 +48,14 @@ class TestProfilingMiddleware(TestCase):
         """ Test that not being able to write fails """
         pm = linesman.middleware.ProfilingMiddleware("app")
 
-    @patch("linesman.create_graph", Mock(return_value=None))
-    @patch("os.path.exists", Mock(return_value=True))
-    def test_pickle_existing_dict(self):
-        """ Check that new data in sessions get opened up correctly """
-        temp_filename = get_temporary_filename()
-        try:
-            # Setup a little profiler
-            with patch("__builtin__.open", Mock(side_effect=IOError())):
-                pm = linesman.middleware.ProfilingMiddleware("app",
-                                                session_history_path=temp_filename)
-            session = linesman.ProfilingSession(generate_profiler_entry())
-            session._graph = {"key": "value"}
-            pm._add_session(session)
-
-            # Make sure we can re-open it!
-            with open(temp_filename, 'rb') as pickle_fd:
-                unpickled_sessions = cPickle.load(pickle_fd)
-
-            # We should be the ONLY item in this session, so make sure we're
-            #   the same object.
-            assert_equals(1, len(unpickled_sessions))
-            assert_equals(session._graph,
-                          unpickled_sessions[session.uuid]._graph)
-        finally:
-            # Clean up after ourselves
-            try:
-                os.remove(temp_filename)
-            except: pass
-
     @patch("__builtin__.open", Mock(side_effect=IOError()))
     @patch("os.path.exists", Mock(return_value=True))
     def test_pickle_new_dict(self):
         # Setup a little profiler
         temp_filename = get_temporary_filename()
         try:
-            pm = linesman.middleware.ProfilingMiddleware("app",
-                                            session_history_path=temp_filename)
-            assert_equals(linesman.middleware.OrderedDict(), pm._session_history)
+            pm = linesman.middleware.ProfilingMiddleware("app")
+            assert_equals(OrderedDict(), pm._backend.get_all())
         finally:
             # Clean up after ourselves
             try:
@@ -92,8 +70,7 @@ class TestProfilingMiddleware(TestCase):
             map_app = URLMap()
             pm = linesman.middleware.ProfilingMiddleware(
                                         map_app,
-                                        profiler_path=profiler_path,
-                                        session_history_path=temp_filename)
+                                        profiler_path=profiler_path)
             app = TestApp(pm)
             app.get("/not/profiled/url", status=404)
         finally:
@@ -109,10 +86,9 @@ class TestProfilingMiddleware(TestCase):
         try:
             pm = linesman.middleware.ProfilingMiddleware(
                                         Mock(),
-                                        profiler_path=profiler_path,
-                                        session_history_path=temp_filename)
+                                        profiler_path=profiler_path)
             session = linesman.ProfilingSession(generate_profiler_entry())
-            pm._add_session(session)
+            pm._backend.add(session)
 
             app = TestApp(pm)
 
