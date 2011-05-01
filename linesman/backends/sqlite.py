@@ -27,22 +27,22 @@ class SqliteBackend(Backend):
     Stores sessions in a SQLite database.
     """
 
-    def __init__(self, dbfile="sessions.db"):
+    def __init__(self, filename="sessions.db"):
         """
         Opens up a connection to a sqlite3 database.
 
-        ``dbfile``:
+        ``filename``:
             filename of the sqlite database.  If this file does not exist, it
             will be created automatically.
 
             This can also be set to `:memory:` to store the database in
             memory; however, this will not persist across runs.
         """
-        self.dbfile = dbfile
+        self.filename = filename
 
     @property
     def conn(self):
-        return sqlite3.connect(self.dbfile, isolation_level=None,
+        return sqlite3.connect(self.filename, isolation_level=None,
             detect_types=(sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES))
 
     def setup(self):
