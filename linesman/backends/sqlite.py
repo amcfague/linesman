@@ -2,7 +2,7 @@ import logging
 import sqlite3
 import time
 
-from linesman.backends import Backend
+from linesman.backends.base import Backend
 
 
 try:

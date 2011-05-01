@@ -1,6 +1,6 @@
 import logging
 
-from linesman.backends import Backend
+from linesman.backends.base import Backend
 
 
 try:
