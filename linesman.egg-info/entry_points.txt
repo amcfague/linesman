@@ -1,6 +1,0 @@
-
-        [paste.filter_app_factory]
-        profiler = linesman.middleware:profiler_filter_app_factory
-        [paste.filter_factory]
-        profiler = linesman.middleware:profiler_filter_factory
-    
