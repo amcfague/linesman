@@ -2,5 +2,9 @@ mako
 networkx
 PIL
 pygraphviz
+<<<<<<< HEAD
 Paste
 ordereddict
+=======
+Paste
+>>>>>>> v0.1.1
