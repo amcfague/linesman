@@ -1,3 +1,1 @@
 include README.rst
-recursive-include linesman/templates *
-recursive-include linesman/media *
