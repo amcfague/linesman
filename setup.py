@@ -16,7 +16,7 @@ if sys.version_info < (2, 7):
 
 setup(
     name='linesman',
-    version='0.1',
+    version='0.1.1',
     description='WSGI Profiling middleware',
     long_description=open("README.rst", "r").read(),
     author='Andrew McFague',
@@ -26,9 +26,6 @@ setup(
     tests_require=['nose', 'mock', 'webtest'],
     zip_safe=False,
     packages=find_packages(exclude=["ez_setup", "linesman.tests.*"]),
-    package_data = {
-        'linesman': ['templates/*', 'media/css/*', 'media/js/*', 'media/images/*'],
-    },
     install_requires=install_requires,
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",

@@ -1,6 +1,6 @@
 Metadata-Version: 1.0
 Name: linesman
-Version: 0.1.dev
+Version: 0.1.1
 Summary: WSGI Profiling middleware
 Home-page: http://pypi.python.org/pypi/linesman
 Author: Andrew McFague

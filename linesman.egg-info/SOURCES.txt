@@ -1,3 +1,5 @@
+MANIFEST.in
+README.rst
 setup.cfg
 setup.py
 linesman/__init__.py
@@ -9,6 +11,13 @@ linesman.egg-info/entry_points.txt
 linesman.egg-info/not-zip-safe
 linesman.egg-info/requires.txt
 linesman.egg-info/top_level.txt
+linesman/media/css/tree.css
+linesman/media/images/closed.gif
+linesman/media/images/open.gif
+linesman/media/js/accordian.js
+linesman/media/js/jquery-1.5.2.min.js
+linesman/templates/list.tmpl
+linesman/templates/tree.tmpl
 linesman/tests/__init__.py
 linesman/tests/test_graphs.py
 linesman/tests/test_linesman_profiler.py
