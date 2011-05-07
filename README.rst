@@ -2,6 +2,12 @@
 middleware, can be configured entirely from any ``paster`` config, and aims to
 be a jack-of-all-trades when it comes to profiling WSGI apps.
 
+Since a picture is worth a thousand words, here are a few screenshots of the
+interface:
+
+- `Profile page <https://github.com/amcfague/linesman/raw/master/examples/profile.png>`_
+- `Generated callgraph <https://github.com/amcfague/linesman/raw/master/examples/callgraph.png>`_
+
 Reasoning behind this library
 =============================
 
