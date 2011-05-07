@@ -235,6 +235,7 @@ class ProfilingMiddleware(object):
             cutoff_time = int(session.duration * cutoff_percentage * CUTOFF_TIME_UNITS)
             graph, root_nodes, removed_edges = prepare_graph(
                 session._graph, cutoff_time, True)
+            pie_values = parse_values(graph, root_nodes, ['websync', 'repoze'])
             resp.unicode_body = self.get_template('tree.tmpl').render_unicode(
                 session=session,
                 graph=graph,
@@ -242,10 +243,39 @@ class ProfilingMiddleware(object):
                 removed_edges=removed_edges,
                 application_url=self.profiler_path,
                 cutoff_percentage = cutoff_percentage,
-                cutoff_time = cutoff_time
+                cutoff_time = cutoff_time,
+                pie_values=pie_values
             )
 
         return resp
+
+def parse_values(graph, root_nodes, fields):
+    values = dict((field, 0.0) for field in fields)
+    values["Other"] = 0.0
+
+    def is_field(node_name):
+        for field in fields:
+            if node_name.startswith(field):
+                return field
+        return None
+    def find_nodes(node_name):
+        field = is_field(node_name)
+        if field:
+            values[field] += graph.node[node_name]['totaltime']
+        else:
+            for node in graph.successors(node_name):
+                find_nodes(node)
+
+
+    for node in root_nodes:
+        m = find_nodes(node)
+        t = graph.node[node].get('totaltime', 0)
+        if m:
+            values[m] += t
+        else:
+            values["Other"] += t
+
+    return values
 
 
 def prepare_graph(source_graph, cutoff_time, break_cycles=False):
