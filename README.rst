@@ -6,6 +6,7 @@ Since a picture is worth a thousand words, here are a few screenshots of the
 interface:
 
 - `Profile page <https://github.com/amcfague/linesman/raw/master/examples/profile.png>`_
+- `Profile page w/ pie chart <https://github.com/amcfague/linesman/raw/master/examples/profile-with-pie-chart.png>`_
 - `Generated callgraph <https://github.com/amcfague/linesman/raw/master/examples/callgraph.png>`_
 
 Reasoning behind this library
