@@ -34,6 +34,8 @@
   <link rel="stylesheet" href="../media/css/tree.css"/>
   <script type="text/javascript" src='../media/js/jquery-1.5.2.min.js'></script>
   <script type="text/javascript" src='../media/js/accordian.js'></script>
+
+%if chart_values:
   <script type="text/javascript" src='../media/js/highcharts.js'></script>
   <script type="text/javascript">
 var chart;
@@ -56,7 +58,9 @@ $(document).ready(function() {
       plotOptions: {
          pie: {
             allowPointSelect: true,
-            cursor: 'pointer',
+            animation: false,
+            size: "85%",
+            stickyTracking: false,
             dataLabels: {
                enabled: true,
                color: '#000000',
@@ -69,9 +73,9 @@ $(document).ready(function() {
       },
        series: [{
          type: 'pie',
-         name: 'Browser share',
+         name: 'Duration in package',
          data: [
-         % for k, v in pie_values.items():
+         % for k, v in chart_values.items():
             ['${k}', ${v}],
          % endfor
          ]
@@ -80,6 +84,7 @@ $(document).ready(function() {
 });
  
   </script>
+%endif
 </head>
 <body>
 
@@ -92,9 +97,20 @@ Cutoff Percentage: <input type='text' name='cutoff_percent' />% <input type="sub
 
 <h2>Content</h2>
 <ul>
+%if chart_values:
+  <li> <a href="#toc_package_duration">Duration in Selected Packages</a>
+%endif
   <li> <a href="#toc_callhierarchy">Call Hierarchy</a>
   <li> <a href="#toc_callgraph">Call Graph</a>
 </ul>
+
+%if chart_values:
+<h2 id="toc_package_duration">Duration in Selected Packages</h2>
+
+This contains the time spent per selected package.
+
+<div id="container" style="width: 100%; height: 400px"></div>
+%endif
 
 <h2 id="toc_callhierarchy">Call Hierarchy</h2>
 
@@ -147,5 +163,3 @@ The graph shows two values: total and cumulative time:
     <img id="callgraph" src="../graph/thumb-${session.uuid}--${cutoff_time}.png"/>
   </a>
 </center>
-
-<div id="container" style="width: 100%; height: 400px"></div>

@@ -45,14 +45,21 @@ class ProfilingMiddleware(object):
         This should be a full module path, with the function or class name
         specified after the trailing `:`.  This function or class should return
         an implementation of :class:`~linesman.backend.Backend`.
+    ``chart_packages``:
+        Space separated list of packages to be charted in the pie graph.
     """
 
     def __init__(self, app,
                        profiler_path="/__profiler__",
                        backend="linesman.backends.pickle:PickleBackend",
+                       chart_packages="",
                        **kwargs):
         self.app = app
         self.profiler_path = profiler_path
+
+        # Always reverse sort these packages, so that child packages of the
+        # same module will always be picked first.
+        self.chart_packages = sorted(chart_packages.split(), reverse=True)
 
         # Setup the backend
         module_name, sep, class_name = backend.rpartition(":")
@@ -235,7 +242,8 @@ class ProfilingMiddleware(object):
                 session.duration * cutoff_percentage * CUTOFF_TIME_UNITS)
             graph, root_nodes, removed_edges = prepare_graph(
                 session._graph, cutoff_time, True)
-            pie_values = parse_values(graph, root_nodes, ['websync', 'repoze'])
+            chart_values = time_per_field(session._graph, root_nodes,
+                                        self.chart_packages)
             resp.unicode_body = self.get_template('tree.tmpl').render_unicode(
                 session=session,
                 graph=graph,
@@ -244,36 +252,46 @@ class ProfilingMiddleware(object):
                 application_url=self.profiler_path,
                 cutoff_percentage=cutoff_percentage,
                 cutoff_time=cutoff_time,
-                pie_values=pie_values
+                chart_values=chart_values
             )
 
         return resp
 
-def parse_values(graph, root_nodes, fields):
+def time_per_field(full_graph, root_nodes, fields):
+    if not fields:
+        return
+
+    seen_nodes = []
     values = dict((field, 0.0) for field in fields)
     values["Other"] = 0.0
 
     def is_field(node_name):
         for field in fields:
-            if node_name.startswith(field):
+            if node_name.startswith(field + "."):
                 return field
         return None
-    def find_nodes(node_name):
+
+    def recursive_parse(node_name, last_seen_field=None):
+        if node_name in seen_nodes:
+            return
+        seen_nodes.append(node_name)
+
         field = is_field(node_name)
+        inlinetime = full_graph.node[node_name]['inlinetime']
         if field:
-            values[field] += graph.node[node_name]['totaltime']
-        else:
-            for node in graph.successors(node_name):
-                find_nodes(node)
+            last_seen_field = field
 
-
-    for node in root_nodes:
-        m = find_nodes(node)
-        t = graph.node[node].get('totaltime', 0)
-        if m:
-            values[m] += t
+        if last_seen_field:
+            values[last_seen_field] += inlinetime
         else:
-            values["Other"] += t
+            values["Other"] += inlinetime
+
+        # Parse the successors
+        for node in full_graph.successors(node_name):
+            recursive_parse(node, last_seen_field)
+
+    for root_node in root_nodes:
+        recursive_parse(root_node)
 
     return values
 
