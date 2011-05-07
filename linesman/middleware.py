@@ -1,4 +1,3 @@
-import cPickle
 import logging
 import os
 from datetime import datetime
@@ -13,7 +12,6 @@ from webob import Request, Response
 from webob.exc import HTTPNotFound
 
 from linesman import ProfilingSession, draw_graph
-import linesman.backends
 
 
 try:
@@ -29,7 +27,7 @@ GRAPH_DIR = os.path.join(gettempdir(), "linesman-graph")
 MEDIA_DIR = resource_filename("linesman", "media")
 TEMPLATES_DIR = resource_filename("linesman", "templates")
 
-CUTOFF_TIME_UNITS = 1e9 # Nanoseconds per second
+CUTOFF_TIME_UNITS = 1e9  # Nanoseconds per second
 
 
 class ProfilingMiddleware(object):
@@ -178,7 +176,7 @@ class ProfilingMiddleware(object):
         path_info = req.path_info_peek()
         if '.' not in path_info:
             return StaticURLParser(GRAPH_DIR)
-        
+
         fileid, _, ext = path_info.rpartition('.')
         if path_info.startswith("thumb-"):
             fileid = fileid[6:]
@@ -231,8 +229,10 @@ class ProfilingMiddleware(object):
             resp.status = "404 Not Found"
             resp.body = "Session `%s' not found." % session_uuid
         else:
-            cutoff_percentage = float(req.str_params.get('cutoff_percent', 5) or 5)/100
-            cutoff_time = int(session.duration * cutoff_percentage * CUTOFF_TIME_UNITS)
+            cutoff_percentage = float(
+                req.str_params.get('cutoff_percent', 5) or 5) / 100
+            cutoff_time = int(
+                session.duration * cutoff_percentage * CUTOFF_TIME_UNITS)
             graph, root_nodes, removed_edges = prepare_graph(
                 session._graph, cutoff_time, True)
             resp.unicode_body = self.get_template('tree.tmpl').render_unicode(
@@ -241,8 +241,8 @@ class ProfilingMiddleware(object):
                 root_nodes=root_nodes,
                 removed_edges=removed_edges,
                 application_url=self.profiler_path,
-                cutoff_percentage = cutoff_percentage,
-                cutoff_time = cutoff_time
+                cutoff_percentage=cutoff_percentage,
+                cutoff_time=cutoff_time
             )
 
         return resp
@@ -260,16 +260,20 @@ def prepare_graph(source_graph, cutoff_time, break_cycles=False):
     # Always use a copy for destructive changes
     graph = source_graph.copy()
 
-    max_totaltime = max(data['totaltime'] for node, data in graph.nodes(data = True))
+    max_totaltime = max(data['totaltime']
+                        for node, data in graph.nodes(data=True))
     for node, data in graph.nodes(data=True):
-        data['color'] = "%f 1.0 1.0" % ((1-(data['totaltime'] / max_totaltime)) / 3)
+        data['color'] = "%f 1.0 1.0" % (
+            (1 - (data['totaltime'] / max_totaltime)) / 3)
         data['style'] = 'filled'
 
     cyclic_breaks = []
 
     # Remove nodes where the totaltime is greater than the cutoff time
-    graph.remove_nodes_from([node for node, data in graph.nodes(data=True)
-                              if int(data.get('totaltime')*CUTOFF_TIME_UNITS) < cutoff_time])
+    graph.remove_nodes_from([
+        node
+        for node, data in graph.nodes(data=True)
+        if int(data.get('totaltime') * CUTOFF_TIME_UNITS) < cutoff_time])
 
     # Break cycles
     if break_cycles:
@@ -279,7 +283,9 @@ def prepare_graph(source_graph, cutoff_time, break_cycles=False):
                 graph.remove_edge(u, v)
                 cyclic_breaks.append((u, v))
 
-    root_nodes = [node for node, degree in graph.in_degree_iter() if degree == 0]
+    root_nodes = [node
+                  for node, degree in graph.in_degree_iter()
+                  if degree == 0]
 
     return graph, root_nodes, cyclic_breaks
 
