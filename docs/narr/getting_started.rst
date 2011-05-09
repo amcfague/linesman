@@ -23,6 +23,9 @@ other Python scripts.  No other setup is required.
 Setting up middleware
 ---------------------
 
+Via Configuration (Paster)
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Now, you'll need to tell your WSGI application how to use Linesman.  Assuming
 you're using Paster, you can do this very easily in your `development.ini` (or
 similar) config file.  Add a new filter section::
@@ -36,9 +39,39 @@ option somewhere within this section::
 
     filter-with = linesman
 
-Wallah!  Once you start your paster server, you'll be all set.  Verify that all
+Voila!  Once you start your paster server, you'll be all set.  Verify that all
 is working correctly by accessing pages on your server.  This will also create
 profile entries for the next step.
+
+.. _configuration_code:
+
+Via Code
+^^^^^^^^
+
+This requires manually wrapping the WSGI calls in the middleware.  This is only
+recommended if you are unable to setup a filter.  Before beginning, please
+check your respective WSGI server documentation to see if running your app
+through Paster is possible (i.e., `gunicorn
+<http://gunicorn.org/run.html#gunicorn-paster>`_), as this requires zero code
+changes.
+
+First off, you'll have to open up the area where your app declares middleware.
+Typically, this will just be called `app`, but it is heavily dependant on the
+framework.  Pylons creates the application in `<project>/config/middleware.py`.
+
+Then, you can create the middleware by passing in the app to the middleware
+constructor, like so::
+
+    from linesman.middleware import make_linesman_middleware
+
+    [...]
+
+    app = make_linesman_middleware(app)
+    # Or, if you have config options...
+    # app = make_linesman_middleware(app, profiler_path="/__profiler")
+
+For a complete list of configurable parameters, please see the
+:ref:`configuration` documentation.
 
 Accessing the profiles
 ----------------------

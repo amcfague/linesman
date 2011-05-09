@@ -346,3 +346,6 @@ def profiler_filter_factory(conf, **kwargs):
 
 def profiler_filter_app_factory(app, conf, **kwargs):
     return ProfilingMiddleware(app, **kwargs)
+
+def make_linesman_middleware(app, **kwargs):
+    return ProfilingMiddleware(app, **kwargs)
