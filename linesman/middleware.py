@@ -26,6 +26,7 @@ log = logging.getLogger(__name__)
 GRAPH_DIR = os.path.join(gettempdir(), "linesman-graph")
 MEDIA_DIR = resource_filename("linesman", "media")
 TEMPLATES_DIR = resource_filename("linesman", "templates")
+ENABLED_FLAG_FILE = 'linesman-enabled'
 
 CUTOFF_TIME_UNITS = 1e9  # Nanoseconds per second
 
@@ -93,7 +94,11 @@ class ProfilingMiddleware(object):
         """
         # If we're not accessing the profiler, profile the request.
         req = Request(environ)
+
+        self.profiling_enabled = os.path.exists(ENABLED_FLAG_FILE)
         if req.path_info_peek() != self.profiler_path.strip('/'):
+            if not self.profiling_enabled:
+                return self.app(environ, start_response)
             _locals = locals()
             prof = Profile()
             start_timestamp = datetime.now()
@@ -148,11 +153,29 @@ class ProfilingMiddleware(object):
 
         Returns a WSGI application.
         """
+        if 'enable' in req.params:
+            try:
+                if not os.path.exists(ENABLED_FLAG_FILE):
+                    open(ENABLED_FLAG_FILE, 'w').close()
+                self.profiling_enabled = True
+            except IOError:
+                log.error("Unable to create %s to enable profiling" % os.abspath(ENABLED_FLAG_FILE))
+                raise
+        elif 'disable' in req.params:
+            try:
+                if os.path.exists(ENABLED_FLAG_FILE):
+                    os.remove(ENABLED_FLAG_FILE)
+                self.profiling_enabled = False
+            except IOError:
+                log.error("Unable to delete %s to disable profiling" % os.path.abspath(ENABLED_FLAG_FILE))
+                raise
+
         resp = Response(charset='utf8')
         session_history = self._backend.get_all()
         resp.unicode_body = self.get_template('list.tmpl').render_unicode(
             history=session_history,
-            application_url=req.application_url)
+            path=req.path,
+            profiling_enabled=self.profiling_enabled)
         return resp
 
     def media(self, req):
