@@ -51,7 +51,7 @@ class ProfilingMiddleware(object):
 
     def __init__(self, app,
                        profiler_path="/__profiler__",
-                       backend="linesman.backends.pickle:PickleBackend",
+                       backend="linesman.backends.sqlite:SqliteBackend",
                        chart_packages="",
                        **kwargs):
         self.app = app
