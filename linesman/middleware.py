@@ -232,10 +232,13 @@ class ProfilingMiddleware(object):
         resp = Response(charset='utf8')
         session_uuid = req.path_info_pop()
         session = self._backend.get(session_uuid)
+
+        # If the Session doesn't exist, return an appropriate error
         if not session:
             resp.status = "404 Not Found"
             resp.body = "Session `%s' not found." % session_uuid
         else:
+            # Otherwise, prepare the graph for display!
             cutoff_percentage = float(
                 req.str_params.get('cutoff_percent', 5) or 5) / 100
             cutoff_time = int(
@@ -257,21 +260,61 @@ class ProfilingMiddleware(object):
 
         return resp
 
+
 def time_per_field(full_graph, root_nodes, fields):
+    """
+    This function generates the fields used by the pie graph jQuery code on the
+    session profile page.  This process is clever about calculating total time,
+    so that packages and subpackages don't overlap.
+
+    Additionally, if I were to track ``linesman.middleware``, and in that
+    package an external package is called, say ``re``, the time spent in ``re``
+    would be added to the total time in package ``linesman.middleware``, unless
+    ``re`` is one of the fields that are being tracked.
+
+    ``full_graph``:
+        For best results, this should be an untouched copy of the original
+        graph.  The reasoning is because, if certain packages are pruned, the
+        graph result could be completely varied and inaccurate.
+    ``root_nodes``:
+        The list of starting point for this graph.
+    ``fields``:
+        The list of packages to be tracked.
+
+    Returns a dictionary where the keys are the same as the ``fields``, plus an
+    extra field called `Other` that contains packages that were not tracked.
+    The values for each field is the total time spent in that package.
+
+    .. warning::
+
+        This will run into issues where separate packages rely on the same core
+        set of functions.  I.e., of `PackageA` and `PackageB` both rely on
+        ``re``, there's no defined outcome.  Whichever one is parsed first will
+        include the time spent in ``re``.
+    """
     if not fields:
         return
 
+    # Keep track of all the nodes we've seen.
     seen_nodes = []
     values = dict((field, 0.0) for field in fields)
     values["Other"] = 0.0
 
     def is_field(node_name):
+        """
+        Returns True if ``node_name`` is part of the ``fields`` that should be
+        tracked.
+        """
         for field in fields:
             if node_name.startswith(field + "."):
                 return field
         return None
 
     def recursive_parse(node_name, last_seen_field=None):
+        """
+        Given a node, follow its descendents and append their runtimes to the
+        last seen "tracked" field.
+        """
         if node_name in seen_nodes:
             return
         seen_nodes.append(node_name)
@@ -339,13 +382,27 @@ def prepare_graph(source_graph, cutoff_time, break_cycles=False):
 
 
 def profiler_filter_factory(conf, **kwargs):
+    """
+    Factory for creating :mod:`paste` filters.  Full documentation can be found
+    in `the paste docs <http://pythonpaste.org/deploy/#paste-filter-factory>`_.
+    """
     def filter(app):
         return ProfilingMiddleware(app, **kwargs)
     return filter
 
 
 def profiler_filter_app_factory(app, conf, **kwargs):
+    """
+    Creates a single :mod:`paste` filter.  Full documentation can be found in
+    `the paste docs <http://pythonpaste.org/deploy/#paste-filter-factory>`_.
+    """
     return ProfilingMiddleware(app, **kwargs)
 
+
 def make_linesman_middleware(app, **kwargs):
+    """
+    Helper function for wrapping an application with :mod:`!linesman`.  This
+    can be used when manually wrapping middleware, although its also possible
+    to simply call :class:`~linesman.middleware.ProfilingMiddleware` directly.
+    """
     return ProfilingMiddleware(app, **kwargs)
