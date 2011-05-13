@@ -9,7 +9,14 @@
     $(document).ready(function()
         {
             $("#profile-sessions").dataTable({
-                "bJQueryUI": true
+                "bJQueryUI": true,
+                "aoColumns": [
+                    null,
+                    null,
+                    null,
+                    { "bSortable": false },
+                    { "bSortable": false }
+                ]
             });
         }
     );
