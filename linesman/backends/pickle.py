@@ -64,12 +64,26 @@ class PickleBackend(Backend):
         self._session_history[session.uuid] = session
         self.__flush()
 
-    def clear(self):
+    def delete(self, session_uuid):
         """
-        Clears the dictionary and flushes it to disk.
+        Remove a session from the dictionary and flush it to disk.
         """
+        if self.get(session_uuid):
+            del self._session_history[session_uuid]
+            self.__flush()
+            return 1
+
+        return 0
+
+    def delete_all(self):
+        """
+        Clear the entire session history and flush it to disk.
+        """
+        deleted_rows = len(self._session_history)
         self._session_history.clear()
         self.__flush()
+
+        return deleted_rows
 
     def get(self, session_uuid):
         return self._session_history.get(session_uuid)

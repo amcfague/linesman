@@ -119,6 +119,8 @@ class ProfilingMiddleware(object):
             wsgi_app = self.media(req)
         elif query_param == "profiles":
             wsgi_app = self.show_profile(req)
+        elif query_param == "delete":
+            wsgi_app = self.delete_profile(req)
         else:
             wsgi_app = HTTPNotFound()
 
@@ -217,6 +219,31 @@ class ProfilingMiddleware(object):
                 im.save(thumbnail_path)
 
         return StaticURLParser(GRAPH_DIR)
+
+    def delete_profile(self, req):
+        """
+        If the current path info refers to a specific ``session_uuid``, this
+        session will be removed.  Otherwise, if it refers to `all`, then all
+        tracked session info will be removed.
+
+        ``req``:
+            :class:`webob.Request` containing the environment information from
+            the request itself.
+
+        Returns a WSGI application.
+        """
+        resp = Response(charset='utf8')
+        session_uuid = req.path_info_pop()
+        if session_uuid == "all":
+            deleted_rows = self._backend.delete_all()
+        elif session_uuid:
+            deleted_rows = self._backend.delete(session_uuid)
+        else:
+            deleted_rows = 0
+
+        resp.body = "%d row(s) deleted." % deleted_rows
+
+        return resp
 
     def show_profile(self, req):
         """

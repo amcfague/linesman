@@ -76,14 +76,30 @@ class SqliteBackend(Backend):
         c = self.conn.cursor()
         c.execute(query, params)
 
-    def clear(self):
+    def delete(self, session_uuid):
+        """
+        Remove the session.
+        """
+        query = "DELETE FROM sessions WHERE uuid = ?;"
+        params = (session_uuid,)
+
+        conn = self.conn
+        curs = conn.cursor()
+        curs.execute(query, params)
+
+        return conn.total_changes
+
+    def delete_all(self):
         """
         Truncate the database.
         """
         query = "DELETE FROM sessions;"
 
-        c = self.conn.cursor()
-        c.execute(query)
+        conn = self.conn
+        curs = conn.cursor()
+        curs.execute(query)
+
+        return conn.total_changes
 
     def get(self, session_uuid):
         """

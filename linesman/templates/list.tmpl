@@ -1,4 +1,8 @@
+<p><a href="${application_url}/delete/all">Delete ALL Sessions.</a></p>
+<p>Be careful!  Once your sessions are deleted, they *cannot* be removed!</p>
+
 % for uuid, session in history.items():
 ${session.path} took ${session.duration} seconds. (${session.timestamp}) (<a
-href="${application_url}/profiles/${session.uuid}">STATS</a>)<br/>
+href="${application_url}/profiles/${session.uuid}">STATS</a>) (<a
+href="${application_url}/delete/${session.uuid}">DELETE</a>)<br/>
 % endfor

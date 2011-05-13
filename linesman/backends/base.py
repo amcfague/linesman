@@ -25,9 +25,21 @@ class Backend(object):
         """
         raise NotImplemented()
 
-    def clear(self):
+    def delete(self, session_uuid):
+        """
+        Removes a specific stored session from the history.
+
+        This should return the number of rows removed (0 or 1).
+
+        Raises a :class:`NotImplemented` exception.
+        """
+        raise NotImplemented()
+
+    def delete_all(self):
         """
         Removes all stored sessions from the history.
+
+        This should return the number of rows removed.
 
         Raises a :class:`NotImplemented` exception.
         """
