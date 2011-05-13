@@ -1,6 +1,7 @@
-#profiling-status { margin: 10px 0px; }
+div.button-container { margin: 10px 0px; }
+table.display td.button-container { padding: 5px 10px; }
 
-#profiling-status-change {
+a.button {
     -moz-border-radius: 7px;
     -webkit-border-radius: 7px;
     -khtml-border-radius: 7px;
@@ -10,6 +11,8 @@
 
 #profiling-status-change.enabled { background: #00ff00; color: #000000; }
 #profiling-status-change.disabled { background: #ff0000; color: #000000;}
+
+a.delete { background: #ff0000; color: #000000; }
 
 table.tablesorter {
 	font-size: 12px;

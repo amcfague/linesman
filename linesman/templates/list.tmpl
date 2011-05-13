@@ -17,15 +17,15 @@
 	
     </head>
     <body>
-    <div id="profiling-status">
+    <div id="profiling-status" class="button-container">
     % if profiling_enabled:
-    Profiling is <a id="profiling-status-change" class="enabled" href="?disable">enabled</a>
+    Profiling is <a id="profiling-status-change" class="button enabled" href="?disable">enabled</a>
     % else:
-    Profiling is <a id="profiling-status-change" class="disabled" href="?enable">disabled</a>
+    Profiling is <a id="profiling-status-change" class="button disabled" href="?enable">disabled</a>
     % endif
     </div>
 
-    <p><a href="${path}/delete/all">Delete ALL Sessions.</a></p>
+    <p><a id="delete-all-sessions" class="delete button" href="${path}/delete/all">Delete ALL Sessions.</a></p>
     <p>Be careful!  Once your sessions are deleted, they *cannot* be removed!</p>
 
     <table id="profile-sessions" class="display">
@@ -45,7 +45,7 @@
                 <td>${session.duration}</td>
                 <td>${session.timestamp}</td>
                 <td><a href="${path}/profiles/${session.uuid}">STATS</a></td>
-                <td><a href="${path}/delete/${session.uuid}">DELETE</a></td>
+                <td class="button-container"><a class="delete button" href="${path}/delete/${session.uuid}">DELETE</a></td>
             </tr>
         % endfor
         <tbody>
