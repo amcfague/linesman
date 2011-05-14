@@ -55,7 +55,7 @@ class PickleBackend(Backend):
                         pickle_fd,
                         pickle.HIGHEST_PROTOCOL)
 
-    def setup(self, filename="sessions.dat"):
+    def setup(self):
         """
         Reads in pickled data from ``filename``.
         """
