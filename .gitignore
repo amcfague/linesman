@@ -1,4 +1,7 @@
+*.egg
 *.pyc
+.coverage
 build
 dist
 linesman.egg-info
+sessions.db
