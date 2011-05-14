@@ -126,8 +126,9 @@ class SqliteBackend(Backend):
 
         c = self.conn.cursor()
         c.execute(query, params)
+        result = c.fetchone()
 
-        return c.fetchone()[0] if c.rowcount else None
+        return result[0] if result else None
 
     def get_all(self):
         """
