@@ -13,9 +13,9 @@
 # You should have received a copy of the GNU General Public License along
 # with linesman.  If not, see <http://www.gnu.org/licenses/>.
 #
-
 import logging
 import os
+from cProfile import Profile
 from datetime import datetime
 from tempfile import gettempdir
 
@@ -28,12 +28,6 @@ from webob import Request, Response
 from webob.exc import HTTPNotFound
 
 from linesman import ProfilingSession, draw_graph
-
-
-try:
-    from cProfile import Profile
-except ImportError:
-    from profile import Profile
 
 
 log = logging.getLogger(__name__)

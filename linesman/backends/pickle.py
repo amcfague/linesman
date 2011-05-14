@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License along
 # with linesman.  If not, see <http://www.gnu.org/licenses/>.
 #
-
+import cPickle
 import logging
 
 from linesman.backends.base import Backend
@@ -22,15 +22,11 @@ from linesman.backends.base import Backend
 try:
     # Python 2.7+
     from collections import OrderedDict
-except ImportError:
+except ImportError: #pragma no cover
     # Python 2.4+
     from ordereddict import OrderedDict
 
 
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
 
 
 log = logging.getLogger(__name__)
@@ -51,9 +47,9 @@ class PickleBackend(Backend):
         Writes the session history to disk, in pickled form.
         """
         with open(self.filename, "w+b") as pickle_fd:
-            pickle.dump(self._session_history,
+            cPickle.dump(self._session_history,
                         pickle_fd,
-                        pickle.HIGHEST_PROTOCOL)
+                        cPickle.HIGHEST_PROTOCOL)
 
     def setup(self):
         """
@@ -61,7 +57,7 @@ class PickleBackend(Backend):
         """
         try:
             with open(self.filename, "rb") as pickle_fd:
-                self._session_history = pickle.load(pickle_fd)
+                self._session_history = cPickle.load(pickle_fd)
         except IOError:
             log.debug(
                 "`%s' does not exist; creating new dictionary.",
