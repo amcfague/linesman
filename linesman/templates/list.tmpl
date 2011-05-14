@@ -1,21 +1,29 @@
 <html>
 <head>
   <title>Linesman - Showing all profiles</title>
-  <link rel="stylesheet" href="${application_url}/media/css/list.css"/>
+  <link rel="stylesheet" href="${path}/media/css/list.css"/>
   <script type="text/javascript"
-      src="${application_url}/media/js/jquery-1.5.2.min.js"></script>
+      src="${path}/media/js/jquery-1.5.2.min.js"></script>
   <script type="text/javascript"
-      src="${application_url}/media/js/jquery.dataTables.min.js"></script>
+      src="${path}/media/js/jquery.dataTables.min.js"></script>
   <script type="text/javascript"
-      src="${application_url}/media/js/tables.js"></script>
+      src="${path}/media/js/tables.js"></script>
 </head>
 <body>
 
-<table class="display" id="sessionlist">
+<div id="profiling-status">
+% if profiling_enabled:
+  Profiling is <a id="profiling-status-change" class="enabled" href="?disable">enabled</a>
+% else:
+  Profiling is <a id="profiling-status-change" class="disabled" href="?enable">disabled</a>
+% endif
+</div>
+<br/>
+<table class="display" id="sessions">
   <thead>
     <tr>
       <th>URI</th>
-      <th>Duration</th>
+      <th>Duration (s)</th>
       <th>Timestamp</th>
       <th></th>
     </tr>
@@ -36,14 +44,14 @@
 % for uuid, session in history.items():
     <tr id="${session.uuid}">
       <td>
-        <a href="${application_url}/profiles/${session.uuid}">
+        <a href="${path}/profiles/${session.uuid}">
           ${session.path}
         </a>
       </td>
       <td>${session.duration}</td>
       <td>${session.timestamp}</td>
       <td class="center">
-        <a href="${application_url}/delete/${session.uuid}" class="delete">delete</a>
+        <a href="${path}/delete/${session.uuid}" class="delete">delete</a>
       </td>
     </tr>
 % endfor

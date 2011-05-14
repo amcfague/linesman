@@ -30,9 +30,22 @@
  * DataTables features
  */
 
-#sessionlist center {
+#sessions center {
     text-align: center;
 }
+
+#profiling-status { margin: 10px 0px; }
+
+#profiling-status-change {
+    -moz-border-radius: 7px;
+    -webkit-border-radius: 7px;
+    -khtml-border-radius: 7px;
+    border-radius: 7px;
+    padding: 5px 10px;
+}
+
+#profiling-status-change.enabled { background: #00ff00; color: #000000; }
+#profiling-status-change.disabled { background: #ff0000; color: #000000;}
 
 .dataTables_wrapper {
 	position: relative;

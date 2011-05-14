@@ -2,7 +2,7 @@ var asInitVals = new Array();
 var oTable;
 
 $(document).ready(function() {
-    $("#sessionlist a.delete").click(function() {
+    $("#sessions a.delete").click(function() {
         // Get the enclosing row
         var parent_tr = $(this).closest("tr");
 
@@ -103,9 +103,9 @@ $(document).ready(function() {
         }
     } );
 
-    oTable = $('#sessionlist').dataTable( {
+    oTable = $('#sessions').dataTable( {
         aoColumns: [
-            {"sType": "string"},
+            {"sType": "html"},
             {"sType": "numeric"},
             {"sType": "python_date"},
             {"bSearchable": false, "bSortable": false, "sWidth": "0"}
@@ -128,13 +128,10 @@ $(document).ready(function() {
         oLanguage: {
             "sSearch": "Search all columns:"
         },
-        sDom: 'lrtip',
+        sDom: 'lprtip',
         sPaginationType: "full_numbers"
     } );
                
-
-
-
     $("tfoot input").keyup( function () {
         /* Filter on the column (the index) of this element */
         oTable.fnFilter( this.value, $("tfoot input").index(this) );
