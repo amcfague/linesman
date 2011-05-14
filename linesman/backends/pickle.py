@@ -27,8 +27,6 @@ except ImportError: #pragma no cover
     from ordereddict import OrderedDict
 
 
-
-
 log = logging.getLogger(__name__)
 
 
