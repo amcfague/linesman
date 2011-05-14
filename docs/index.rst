@@ -16,12 +16,6 @@ There are a few select profile wrappers out there--`repoze.profile`,
 either wrap the output from `cProfile` itself, or show incomplete information.
 `Linesman` aims to right this wrong.
 
-.. warning::
-
-    As with most middleware, `linesman` is *not* compatible with ``mod_wsgi``
-    in a multi-process environment due to the shared nature between processes.
-    Running ``mod_wsgi`` with a single process should work, however.
-
 Overview
 --------
 
@@ -38,11 +32,7 @@ Things it *does not cover* are:
 
 To **run unittests**::
 
-    # Standard faire
-    nosetests
-
-    # With coverage reports
-    nosetests --with-coverage --cover-package=linesman
+    $ python setup.py nosetests
 
 To **build this documentation**::
 
@@ -71,6 +61,14 @@ Reference Material
    :glob:
 
    api/*
+
+Change Log
+==========
+
+.. toctree::
+    :maxdepth: 2
+
+    changelog
 
 Index and Glossary
 ==================
