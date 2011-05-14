@@ -1,15 +1,17 @@
-from cProfile import Profile
-from mock import Mock, patch
-from nose.tools import assert_equals, raises
-from paste.urlmap import URLMap
-from unittest import TestCase
-from webtest import TestApp
-import cPickle
-import linesman
-import linesman.middleware
 import os
 import tempfile
 import uuid
+from cProfile import Profile
+from unittest import TestCase
+
+from mock import Mock, patch
+from nose.tools import assert_equals, raises
+from paste.urlmap import URLMap
+from webtest import TestApp
+
+import linesman.middleware
+from linesman.tests import get_temporary_filename
+
 
 try:
     # Python 2.7+
@@ -28,9 +30,6 @@ def generate_profiler_entry():
     prof.runctx("func()", locals(), globals())
     return prof.getstats()
 
-def get_temporary_filename():
-    fn = str(uuid.uuid1())
-    return os.path.join(tempfile.gettempdir(), fn)
 
 class TestProfilingMiddleware(TestCase):
 
@@ -47,20 +46,6 @@ class TestProfilingMiddleware(TestCase):
     def test_graph_dir_error(self):
         """ Test that not being able to write fails """
         pm = linesman.middleware.ProfilingMiddleware("app")
-
-    @patch("__builtin__.open", Mock(side_effect=IOError()))
-    @patch("os.path.exists", Mock(return_value=True))
-    def test_pickle_new_dict(self):
-        # Setup a little profiler
-        temp_filename = get_temporary_filename()
-        try:
-            pm = linesman.middleware.ProfilingMiddleware("app")
-            assert_equals(OrderedDict(), pm._backend.get_all())
-        finally:
-            # Clean up after ourselves
-            try:
-                os.remove(temp_filename)
-            except: pass
 
     def test_middleware_app_non_profiler(self):
         temp_filename = get_temporary_filename()
