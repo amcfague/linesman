@@ -29,6 +29,7 @@ and is instead mounted at ``/webapp``, the same ``profiler_path`` would match
 
 ``backend``
 """""""""""
+
 Takes the form of :samp:`{module}:{class_or_function}`, where
 `class_or_function` resolves to a class that implements
 :class:`~linesman.backends.Backend`.  To see which backends are available, take
@@ -39,24 +40,25 @@ distributed with Linesman.
 
 ``chart_packages``
 """"""""""""""""""
+
 Space separated values that indicate which packages should be displayed in pie
 graph form.  This is extremely useful for getting a high-level view of where
 your program is spending most of its time. ::
 
     chart_packages = paste, repoze.who, webob
 
-Be very careful when specifying parent and child packages.  For example,
-assume ``chart_packages = paste, paste.script``.  If the time spent in
-:package:`paste` was 10s, and the time spent in :package:`paste.script` was 3s,
-then the graphed times would be 3s in :package:`paste.script`, and 7s in
-:package:`paste`.  This is because child packages "take away" some of the
-duration for their parent packages.
+Be very careful when specifying parent and child packages.  For example, assume
+``chart_packages = paste, paste.script``.  If the time spent in :mod:`paste`
+was 10s, and the time spent in :mod:`paste.script` was 3s, then the graphed
+times would be 3s in :mod:`paste.script`, and 7s in :mod:`paste`.  This is
+because child packages "take away" some of the duration for their parent
+packages.
 
 .. warning::
 
     Subpackages are *always* given priority over their parents.  So in the
     above example, if :mod:`!linesman` discovers :func:`paste.script.__init__`,
-    it would add the time to :package:`pastescript`.
+    it would add the time to :mod:`pastescript`.
 
 .. note::
 
