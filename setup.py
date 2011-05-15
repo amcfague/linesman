@@ -25,7 +25,10 @@ setup(
     test_suite='nose.collector',
     tests_require=['nose', 'mock', 'webtest'],
     zip_safe=False,
-    packages=find_packages(exclude=["ez_setup", "linesman.tests.*"]),
+    packages=find_packages(exclude=["ez_setup", "linesman.tests", "linesman.tests.*"]),
+    package_data = {
+        'linesman': ['templates/*', 'media/css/*', 'media/js/*', 'media/images/*'],
+    },
     install_requires=install_requires,
     classifiers=[
         "Development Status :: 4 - Beta",
