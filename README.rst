@@ -14,6 +14,12 @@ interface:
 - `Generated callgraph
   <https://github.com/amcfague/linesman/raw/master/examples/callgraph.png>`_
 
+The changelog can always be viewed `from the source
+<https://github.com/amcfague/linesman/blob/master/docs/changelog.rst>`_, or `on
+PyPi <http://packages.python.org/linesman/changelog.html>`_.  Keep in mind,
+PyPi is only updated with each release, and does not include development
+documentation.
+
 Reasoning behind this library
 =============================
 
