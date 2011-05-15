@@ -1,4 +1,7 @@
-0.2 (development)
+0.3 (development)
+-----------------
+
+0.2 (2011-05-14)
 -----------------
 
 :Contributor: Calen Pennington <cpennington>
