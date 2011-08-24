@@ -169,7 +169,7 @@ class ProfilingMiddleware(object):
                     open(ENABLED_FLAG_FILE, 'w').close()
                 self.profiling_enabled = True
             except IOError:
-                log.error("Unable to create %s to enable profiling" % os.abspath(ENABLED_FLAG_FILE))
+                log.error("Unable to create %s to enable profiling" % os.path.abspath(ENABLED_FLAG_FILE))
                 raise
         elif 'disable' in req.params:
             try:
