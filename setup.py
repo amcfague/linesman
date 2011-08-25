@@ -16,14 +16,14 @@ if sys.version_info < (2, 7):
 
 setup(
     name='linesman',
-    version='0.3',
+    version='0.2.1',
     description='WSGI Profiling middleware',
     long_description=open("README.rst", "r").read(),
     author='Andrew McFague',
     author_email='redmumba@gmail.com',
     url='http://pypi.python.org/pypi/linesman',
     test_suite='nose.collector',
-    tests_require=['nose', 'mock', 'webtest'],
+    tests_require=['nose', 'mock==0.7', 'webtest'],
     zip_safe=False,
     packages=find_packages(exclude=["ez_setup", "linesman.tests", "linesman.tests.*"]),
     package_data = {
