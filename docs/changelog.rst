@@ -1,6 +1,18 @@
 0.3 (development)
 -----------------
 
+0.2.1 (2011-08-25)
+------------------
+
+:Contributor: Luis Peralta
+
+Bugs
+^^^^
+
+* os.abspath should have been os.path.abspath (lperalta)
+* Updated unittests back to 100% to catch errors, such as the one lperalta
+  found.
+
 0.2 (2011-05-14)
 -----------------
 
