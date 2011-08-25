@@ -1,8 +1,11 @@
+import unittest
 from cProfile import Profile
+
 from mock import Mock, patch
 from nose.tools import assert_equals
+
 import linesman
-import unittest
+
 
 class TestGraphUtils(unittest.TestCase):
 
@@ -28,7 +31,8 @@ class TestGraphUtils(unittest.TestCase):
 
     def test_generate_key_module(self):
         """ Test that a key is generated for module functions """
-        def test_func(): pass
+        def test_func():
+            pass
 
         stat = Mock()
         stat.code = test_func.__code__
@@ -40,7 +44,8 @@ class TestGraphUtils(unittest.TestCase):
     @patch("linesman.getmodule", Mock(return_value=None))
     def test_generate_key_unknown(self):
         """ Test that unknown module functions return as strings """
-        def test_func(): pass
+        def test_func():
+            pass
 
         stat = Mock()
         stat.code = test_func.__code__
@@ -51,11 +56,12 @@ class TestGraphUtils(unittest.TestCase):
 
     def test_create_graph(self):
         """ Test that a graph gets generated for a test function """
-        def test_func(): pass
+        def test_func():
+            pass
         prof = Profile()
         prof.runctx("test_func()", locals(), globals())
         graph = linesman.create_graph(prof.getstats())
-        
+
         # We should only ever have three items here
         assert_equals(len(graph), 3)
 
@@ -66,4 +72,6 @@ class TestGraphUtils(unittest.TestCase):
              "<method 'disable' of '_lsprof.Profiler' objects>"])
 
         # Assert that the correct edges are set-up
-        assert_equals([('<string>.<module>', 'linesman.tests.test_graphs.test_func')], graph.edges())
+        assert_equals(
+            [('<string>.<module>', 'linesman.tests.test_graphs.test_func')],
+            graph.edges())

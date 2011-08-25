@@ -13,7 +13,6 @@
 # You should have received a copy of the GNU General Public License along
 # with linesman.  If not, see <http://www.gnu.org/licenses/>.
 #
-
 import logging
 import uuid
 from inspect import getmodule
@@ -51,6 +50,7 @@ def draw_graph(graph, output_path):
     """
     nx.to_agraph(graph).draw(output_path, prog="dot")
     log.info("Wrote output to `%s'" % output_path)
+
 
 def create_graph(stats):
     """

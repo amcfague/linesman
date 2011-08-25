@@ -29,7 +29,6 @@ except ImportError:
     from ordereddict import OrderedDict
 
 
-
 sqlite3.register_converter("pickle", cPickle.loads)
 log = logging.getLogger(__name__)
 

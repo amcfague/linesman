@@ -10,6 +10,7 @@ from linesman.tests.backends import TestBackend
 
 MOCK_SESSION_UUID = "abcd1234"
 
+
 class TestBackendPickle(TestBackend):
 
     def setUp(self):
@@ -49,7 +50,8 @@ class TestBackendPickle(TestBackend):
     @patch("__builtin__.open")
     @patch("linesman.backends.pickle.OrderedDict")
     def test_setup_ioerror(self, mock_ordered_dict, mock_open):
-        """ Test that setup will create a new ordered dict if no file exists """
+        """ Test that setup will create a new ordered dict if no file exists
+        """
         mock_open.side_effect = IOError()
         self.backend.setup()
         mock_ordered_dict.assert_called_once_with()

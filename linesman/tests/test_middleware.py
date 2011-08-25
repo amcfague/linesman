@@ -1,11 +1,9 @@
 import os
-import tempfile
-import uuid
 from cProfile import Profile
 from unittest import TestCase
 
 from mock import Mock, patch
-from nose.tools import assert_equals, raises
+from nose.tools import raises
 from paste.urlmap import URLMap
 from webtest import TestApp
 
@@ -62,8 +60,8 @@ class TestProfilingMiddleware(TestCase):
             # Clean up after ourselves
             try:
                 os.remove(temp_filename)
-            except: pass
-
+            except:
+                pass
 
     def test_middleware_app_profiler(self):
         temp_filename = get_temporary_filename()
@@ -91,4 +89,5 @@ class TestProfilingMiddleware(TestCase):
             # Clean up after ourselves
             try:
                 os.remove(temp_filename)
-            except: pass
+            except:
+                pass

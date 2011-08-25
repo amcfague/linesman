@@ -169,7 +169,8 @@ class ProfilingMiddleware(object):
                     open(ENABLED_FLAG_FILE, 'w').close()
                 self.profiling_enabled = True
             except IOError:
-                log.error("Unable to create %s to enable profiling" % os.path.abspath(ENABLED_FLAG_FILE))
+                log.error("Unable to create %s to enable profiling",
+                          os.path.abspath(ENABLED_FLAG_FILE))
                 raise
         elif 'disable' in req.params:
             try:
@@ -177,7 +178,8 @@ class ProfilingMiddleware(object):
                     os.remove(ENABLED_FLAG_FILE)
                 self.profiling_enabled = False
             except IOError:
-                log.error("Unable to delete %s to disable profiling" % os.path.abspath(ENABLED_FLAG_FILE))
+                log.error("Unable to delete %s to disable profiling",
+                          os.path.abspath(ENABLED_FLAG_FILE))
                 raise
 
         resp = Response(charset='utf8')

@@ -1,8 +1,11 @@
-from cProfile import Profile
-from mock import Mock, patch
-from nose.tools import assert_equals
-import linesman
 import unittest
+from cProfile import Profile
+
+from mock import patch
+from nose.tools import assert_equals
+
+import linesman
+
 
 def generate_profiler_entry():
     def func():
@@ -12,6 +15,7 @@ def generate_profiler_entry():
     prof = Profile()
     prof.runctx("func()", locals(), globals())
     return prof.getstats()
+
 
 class TestProfilingSession(unittest.TestCase):
 

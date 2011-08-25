@@ -14,11 +14,12 @@
 # with linesman.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+
 class Backend(object):
     """
-    Base class for all backends.  Methods that raise a NotImplementedError exception
-    are required to be overriden by children, while functions that pass are
-    optional.
+    Base class for all backends.  Methods that raise a NotImplementedError
+    exception are required to be overriden by children, while functions that
+    pass are optional.
     """
 
     def __init__(self, *args, **kwargs):
