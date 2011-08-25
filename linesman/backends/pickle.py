@@ -40,7 +40,7 @@ class PickleBackend(Backend):
     def __init__(self, filename="sessions.dat"):
         self.filename = filename
 
-    def __flush(self):
+    def _flush(self):
         """
         Writes the session history to disk, in pickled form.
         """
@@ -72,7 +72,7 @@ class PickleBackend(Backend):
         Adds a session to this dictionary and flushes it to disk.
         """
         self._session_history[session.uuid] = session
-        self.__flush()
+        self._flush()
 
     def delete(self, session_uuid):
         """
@@ -80,7 +80,7 @@ class PickleBackend(Backend):
         """
         if self.get(session_uuid):
             del self._session_history[session_uuid]
-            self.__flush()
+            self._flush()
             return 1
 
         return 0
@@ -91,7 +91,7 @@ class PickleBackend(Backend):
         """
         deleted_rows = len(self._session_history)
         self._session_history.clear()
-        self.__flush()
+        self._flush()
 
         return deleted_rows
 
