@@ -1,0 +1,2 @@
+class TestcontController(object):
+    pass
