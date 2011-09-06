@@ -2,8 +2,12 @@ from routes import Mapper
 
 
 def make_map():
-    m = Mapper(directory="/Users/amcfague/src/git/linesman/linesman/controllers")
-    m.connect("/{controller}")
-    m.connect("/{controller}/{action}")
-    m.connect("/{controller}/{action}/{id}")
-    return m
+    map = Mapper(directory="/Users/amcfague/src/git/linesman/linesman/controllers")
+    map.minimization = False
+    map.explicit = False
+
+    map.connect("/{controller}")
+    map.connect("/{controller}/{action}")
+    map.connect("/{controller}/{action}/{id}")
+
+    return map
