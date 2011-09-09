@@ -1,15 +1,18 @@
 import logging
-import os.path
 import sys
+from cProfile import Profile
 
 from mako.lookup import TemplateLookup
 from paste.registry import RegistryManager
 from paste.urlparser import StaticURLParser
 from pkg_resources import resource_filename
+from routes.util import URLGenerator
 from webob import Request, Response
 from webob.exc import HTTPException, HTTPNotFound
 
 import linesman.routing
+import linesman.status
+from linesman.session import Session
 
 
 log = logging.getLogger(__name__)
@@ -36,8 +39,7 @@ def profiler_filter_app_factory(app, conf, **kwargs):
 def make_linesman_middleware(app, **kwargs):
     """
     Helper function for wrapping an application with :mod:`!linesman`. This can
-    be used when manually wrapping middleware, although its also possible to
-    simply call :class:`~linesman.middleware.ProfilingMiddleware` directly.
+    be used when manually wrapping middleware.
     """
     return RegistryManager(ProfilingMiddleware(app, **kwargs))
 
@@ -49,41 +51,38 @@ class ProfilingMiddleware(object):
 
     def __init__(self, app,
                  profiler_path="__profiler__",
-                 backend="linesman.backends.sqlite:SqliteBackend",
+                 backend_str="linesman.backends.sqlite:SqliteBackend",
                  **kwargs):
         self.app = app
         self.prefix = profiler_path
         self.map = linesman.routing.make_map()
         self.__controller_cache = {}
-        self._load_backend(backend, **kwargs)
+        self._load_backend(backend_str, **kwargs)
 
     def __call__(self, environ, start_response):
         request = Request(environ)
+
+        self._register_globals(environ, request)
         if request.path_info_peek() != self.prefix:
-            return self.app(environ, start_response)
+            return self.profile_app(environ, start_response)
         else:
             request.path_info_pop()
 
         # Return the specialized static parser for static data (images,
         # javascript, and CSS files.)
-        if request.path_info_peek() in ['css', 'javascripts', 'images']:
-            return StaticURLParser(os.path.join(
-                self.STATIC_DIR, request.path_info_pop()))
+        if request.path_info_peek() == "static":
+            request.path_info_pop()
+            static_app = StaticURLParser(self.STATIC_DIR)
+            return static_app(environ, start_response)
 
         # Set the request as a global object
-        registry = environ['paste.registry']
-        registry.register(linesman.backend, self._backend)
-        registry.register(linesman.request, request)
-        registry.register(linesman.response, Response(charset="utf-8"))
-        registry.register(linesman.template_lookup, TemplateLookup(
-            directories=[self.TEMPLATES_DIR]))
+        self._register_globals(environ, request)
 
         route_match = self.map.match(request.path_info) or {}
         if not route_match:
-            return HTTPNotFound()
+            return HTTPNotFound()(environ, start_response)
 
         try:
-            print route_match
             self.dispatch(**route_match)
             return linesman.response(environ, start_response)
         except HTTPException as exc:
@@ -94,6 +93,17 @@ class ProfilingMiddleware(object):
         module = __import__(module_name, fromlist=[class_name], level=0)
         self._backend = getattr(module, class_name)(**kwargs)
         self._backend.setup()
+
+    def _register_globals(self, environ, request):
+        registry = environ['paste.registry']
+        registry.register(linesman.backend, self._backend)
+        registry.register(
+            linesman.profiling_status, linesman.status.ProfilingStatus())
+        registry.register(linesman.request, request)
+        registry.register(linesman.response, Response(charset="utf-8"))
+        registry.register(linesman.template_lookup, TemplateLookup(
+            directories=[self.TEMPLATES_DIR]))
+        registry.register(linesman.url, URLGenerator(self.map, environ))
 
     def get_action(self, controller_obj, action_name):
         try:
@@ -134,3 +144,19 @@ class ProfilingMiddleware(object):
 
         body = action_func(**kwargs) or ""
         linesman.response.unicode_body = unicode(body)
+
+    def profile_app(self, environ, start_response):
+        if linesman.profiling_status.is_disabled():
+            return self.app(environ, start_response)
+
+        locals_ = locals()
+        prof = Profile()
+        prof.runctx(
+            "app = self.app(environ, start_response)", globals(), locals_)
+
+        # Convert the profile results to an object we can store reliably
+        session = Session(path=environ.get("PATH_INFO", ""))
+        session.load_stats(prof.getstats())
+        self._backend.add(session)
+
+        return locals_['app']

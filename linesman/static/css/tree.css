@@ -1,0 +1,42 @@
+#callgraph { border: 1px solid black; padding: 1em; }
+
+#callhierarchy { font-family: monospace; font-size: small; }
+#callhierarchy li { width: 100%; padding-top: 3px; border: 0; }
+#callhierarchy li.open { list-style-image: url('../images/open.gif'); }
+#callhierarchy li.closed { list-style-image: url('../images/closed.gif'); }
+#callhierarchy li.leaf { list-style: square; }
+#callhierarchy .header { list-style: none; font-weight: bold; }
+#callhierarchy ul { padding-left:5px; }
+#callhierarchy span.row { width: 100%; display: inline-block; }
+#callhierarchy li.profile-stats span.row:hover { background-color: #dedede; }
+#callhierarchy .module { width: 70%; }
+#callhierarchy .measurements {
+    display: inline-block;
+    float: right;
+}
+#callhierarchy .count {
+    width: 100px;
+    display: inline-block;
+}
+#callhierarchy .time {
+    width: 100px;
+    display: inline-block;
+}
+#callhierarchy .graph {
+    width: 200px;
+    display: inline-block;
+}
+#callhierarchy span.bar-inlinetime {
+    background-color: gray;
+    display: inline-block;
+    padding: 0;
+    margin: 0;
+}
+#callhierarchy span.bar-totaltime {
+    background-color: black;
+    display: inline-block;
+    padding: 0;
+    margin: 0;
+    color: white;
+}
+

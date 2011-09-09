@@ -6,6 +6,9 @@ def make_map():
     map.minimization = False
     map.explicit = False
 
+    map.connect("/profile", controller="profile", action="index")
+    map.connect("/profile/{id}", controller="profile", action="view")
+
     map.connect("/{controller}")
     map.connect("/{controller}/{action}")
     map.connect("/{controller}/{action}/{id}")

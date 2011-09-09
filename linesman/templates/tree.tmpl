@@ -1,0 +1,165 @@
+<%def name="print_tree(node)">
+<%
+    node_obj = graph.node[node]
+    total_time_percentage = round(node_obj.get('totaltime') / session.duration * 100, 2)
+    inline_time_percentage = round(node_obj.get('inlinetime') / session.duration * 100, 2)
+    open_or_leaf = 'open' if graph.neighbors(node) else 'leaf'
+%>
+<li class="profile-stats ${open_or_leaf}">
+  <span class="row">
+    <span class="module">${node | h}</span>
+    <span class="measurements">
+      % if node_obj.get('callcount') > 1:
+      <span class="count">x${node_obj.get('callcount')}</span>
+      % endif
+      <span class="time">${node_obj.get('totaltime')}</span>
+      <span class="graph">
+        <span class="bar">
+          <span class="bar-inlinetime" style="width: ${inline_time_percentage}%;">&nbsp</span><span class="bar-totaltime" style="width: ${total_time_percentage - inline_time_percentage}%;">&nbsp</span>
+        </span>
+      </span>
+    </span>
+  </span>
+  <ul>
+% for subnode in graph.neighbors(node):
+    ${print_tree(subnode)}
+% endfor
+  </ul>
+</li>
+</%def>
+
+<html>
+<head>
+  <title>Linesman - Profile ${session.uuid}</title>
+  <link rel="stylesheet" href="../static/css/tree.css"/>
+  <script type="text/javascript" src='../static/js/jquery-1.5.2.min.js'></script>
+  <script type="text/javascript" src='../static/js/accordian.js'></script>
+
+%if chart_values:
+  <script type="text/javascript" src='../static/js/highcharts.js'></script>
+  <script type="text/javascript">
+var chart;
+$(document).ready(function() {
+   chart = new Highcharts.Chart({
+      chart: {
+         renderTo: 'container',
+         plotBackgroundColor: null,
+         plotBorderWidth: null,
+         plotShadow: false
+      },
+      title: {
+         text: 'Time spent in selected packages',
+      },
+      tooltip: {
+         formatter: function() {
+            return '<b>'+ this.point.name +'</b>: '+ this.y +'s';
+         }
+      },
+      plotOptions: {
+         pie: {
+            allowPointSelect: true,
+            animation: false,
+            size: "85%",
+            stickyTracking: false,
+            dataLabels: {
+               enabled: true,
+               color: '#000000',
+               connectorColor: '#000000',
+               formatter: function() {
+                  return '<b>'+ this.point.name +'</b>: '+ this.y +'s';
+               }
+            }
+         }
+      },
+       series: [{
+         type: 'pie',
+         name: 'Duration in package',
+         data: [
+         % for k, v in chart_values.items():
+            ['${k}', ${v}],
+         % endfor
+         ]
+      }]
+   });
+});
+ 
+  </script>
+%endif
+</head>
+<body>
+
+<h1>Session ${session.uuid}</h1>
+<p>Session profile completed in <strong>${session.duration}s</strong>.</p>
+<p>Calls that took less than <strong>${cutoff_percentage * 100}% of the total time (${cutoff_time/1e9}s)</strong> have been ommitted from this page.</p>
+<form name='set_cutoff' method='get'>
+Cutoff Percentage: <input type='text' name='cutoff_percent' />% <input type="submit" value="Redisplay" />
+</form>
+
+<h2>Content</h2>
+<ul>
+%if chart_values:
+  <li> <a href="#toc_package_duration">Duration in Selected Packages</a>
+%endif
+  <li> <a href="#toc_callhierarchy">Call Hierarchy</a>
+  <li> <a href="#toc_callgraph">Call Graph</a>
+</ul>
+
+%if chart_values:
+<h2 id="toc_package_duration">Duration in Selected Packages</h2>
+
+This contains the time spent per selected package.
+
+<div id="container" style="width: 100%; height: 400px"></div>
+%endif
+
+<h2 id="toc_callhierarchy">Call Hierarchy</h2>
+
+<ul id="callhierarchy">
+<li class="header">
+  <span class="row">
+    <span class="module">Function Name</span>
+    <span class="measurements">
+      <span class="count">Call Count</span>
+      <span class="time">Total Time</span>
+      <span class="graph">
+        <span class="bar">
+          <span class="bar-inlinetime" style="width: 50%;">Inline Time %</span><span class="bar-totaltime" style="width: 50%;">Total Time %</span>
+        </span>
+      </span>
+    </span>
+  </span>
+</li>
+% for root_node in root_nodes:
+${print_tree(root_node)}
+% endfor
+</ul>
+
+<div class="clear_float"></div>
+
+<h3>Total and Cumulative Time</h3>
+
+The graph shows two values: total and cumulative time:
+<ul>
+  <li> total time is the time ONLY this function.
+  <li> cumulative time is all the time spent in the function, including external function calls.
+</ul>
+
+<h3>Hierarchy Notes</h3>
+% if removed_edges:
+<p>The following edges were removed to break cycles (for display only):</p>
+<pre>
+%   for u, v in removed_edges:
+    ${u | h} -> ${v | h}
+%   endfor
+</pre>
+% else:
+<p>No notes.</p>
+% endif
+
+<h2 id="toc_callgraph">Call Graph</h2>
+
+<center>
+  <a href="../graph/${session.uuid}--${cutoff_time}.png">
+    <img id="callgraph" src="../graph/thumb-${session.uuid}--${cutoff_time}.png"/>
+  </a>
+</center>

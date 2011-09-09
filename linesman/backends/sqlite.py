@@ -77,7 +77,6 @@ class SqliteBackend(Backend):
         """
         Insert a new session into the database.
         """
-        uuid = session.uuid
         if session.timestamp:
             timestamp = time.mktime(session.timestamp.timetuple())
         else:
@@ -85,7 +84,7 @@ class SqliteBackend(Backend):
         pickled_session = sqlite3.Binary(cPickle.dumps(session, -1))
 
         query = "INSERT INTO sessions VALUES (?, ?, ?);"
-        params = (uuid, timestamp, pickled_session)
+        params = (str(session.uuid), timestamp, pickled_session)
 
         c = self.conn.cursor()
         c.execute(query, params)

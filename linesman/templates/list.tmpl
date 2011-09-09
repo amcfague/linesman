@@ -1,0 +1,62 @@
+<html>
+<head>
+  <title>Linesman - Showing all profiles</title>
+  <link rel="stylesheet" href="${url("/static/css/list.css")}"/>
+  <script type="text/javascript"
+      src="${url("/static/js/jquery-1.5.2.min.js")}"></script>
+  <script type="text/javascript"
+      src="${url("/static/js/jquery.dataTables.min.js")}"></script>
+  <script type="text/javascript"
+      src="${url("/static/js/tables.js")}"></script>
+</head>
+<body>
+
+<div id="profiling-status">
+% if profiling_enabled:
+  Profiling is <a id="profiling-status-change" class="enabled" href="?disable">enabled</a>
+% else:
+  Profiling is <a id="profiling-status-change" class="disabled" href="?enable">disabled</a>
+% endif
+</div>
+<br/>
+<table class="display" id="sessions">
+  <thead>
+    <tr>
+      <th>URI</th>
+      <th>Duration (s)</th>
+      <th>Timestamp</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tfoot>
+    <tr>
+      <th>
+        <input type="text" name="URI" value="Filter by URI" class="search_init"/>
+      </th>
+      <th>&nbsp;</th>
+      <th>
+        <a href="#" id="delete_listed">Permanently delete filtered sessions</a>
+      </th>
+      <th></th>
+    </tr>
+  </tfoot>
+  <tbody>
+% for uuid, session in history.items():
+    <tr id="${session.uuid}">
+      <td>
+        <a href="${url(controller="profile", action="view", id=session.uuid)}">
+          ${session.path}
+        </a>
+      </td>
+      <td>${session.duration}</td>
+      <td>${session.timestamp}</td>
+      <td class="center">
+        <a href="${path}/delete/${session.uuid}" class="delete">delete</a>
+      </td>
+    </tr>
+% endfor
+  </tbody>
+</table>
+
+</body>
+</html>
