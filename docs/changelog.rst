@@ -1,6 +1,15 @@
 0.3 (development)
 -----------------
 
+0.2.2 (2011-09-30)
+------------------
+:Contributor: Calen Pennington
+
+Bugs
+^^^^
+
+* Date sorting logic was not correct.  (cpennington)
+
 0.2.1 (2011-08-25)
 ------------------
 
