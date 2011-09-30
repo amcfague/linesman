@@ -63,10 +63,13 @@ $(document).ready(function() {
     };
 
     var date_lt = function(a, b) {
-        for(var i in a)
-            if(a[i] > b[i])
-                return false;
-        return true;
+        for(var i in a) {
+            if(a[i] == b[i])
+                continue;
+
+            return parseFloat(a[i]) < parseFloat(b[i]);
+        }
+        return false;
     };
 
     jQuery.fn.dataTableExt.oSort['python_date-asc']  = function(a,b) {
