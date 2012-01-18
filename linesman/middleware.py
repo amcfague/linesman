@@ -413,6 +413,11 @@ def prepare_graph(source_graph, cutoff_time, break_cycles=False):
     # Always use a copy for destructive changes
     graph = source_graph.copy()
 
+    # Some node data could be empty dict
+    for node, data in graph.nodes(data=True):
+        if not data:
+            data['totaltime'] = 0
+
     max_totaltime = max(data['totaltime']
                         for node, data in graph.nodes(data=True))
     for node, data in graph.nodes(data=True):
