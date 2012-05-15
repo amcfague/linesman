@@ -302,7 +302,7 @@ class ProfilingMiddleware(object):
         else:
             # Otherwise, prepare the graph for display!
             cutoff_percentage = float(
-                req.str_params.get('cutoff_percent', 5) or 5) / 100
+                req.params.get('cutoff_percent', 5) or 5) / 100
             cutoff_time = int(
                 session.duration * cutoff_percentage * CUTOFF_TIME_UNITS)
             graph, root_nodes, removed_edges = prepare_graph(
