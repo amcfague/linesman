@@ -53,37 +53,6 @@ $(document).ready(function() {
         return anRows;
     };
 
-    // Date sorting!
-    // Parses out a Pythong datetime object and sorts it.
-    var parse_date_string = function(datestr) {
-        var split_str = datestr.split(" ");
-        var split_date = split_str[0].split("-");
-        var split_time = split_str[1].split(":");
-        return split_date.concat(split_time);
-    };
-
-    var date_lt = function(a, b) {
-        for(var i in a) {
-            if(a[i] == b[i])
-                continue;
-
-            return parseFloat(a[i]) < parseFloat(b[i]);
-        }
-        return false;
-    };
-
-    jQuery.fn.dataTableExt.oSort['python_date-asc']  = function(a,b) {
-        var aDate = parse_date_string(a);
-        var bDate = parse_date_string(b);
-        return date_lt(bDate, aDate);
-    };
-
-    jQuery.fn.dataTableExt.oSort['python_date-desc'] = function(a,b) {
-        var aDate = parse_date_string(a);
-        var bDate = parse_date_string(b);
-        return date_lt(aDate, bDate);
-    };
-
     /*
      * Support functions to provide a little bit of 'user friendlyness' to the textboxes in 
      * the footer
@@ -110,7 +79,7 @@ $(document).ready(function() {
         aoColumns: [
             {"sType": "html"},
             {"sType": "numeric"},
-            {"sType": "python_date"},
+            {"sType": "string"},
             {"bSearchable": false, "bSortable": false, "sWidth": "0"}
         ],
         aLengthMenu: [[20, 50, 100, -1], [20, 50, 100, "All"]],
