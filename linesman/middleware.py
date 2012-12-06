@@ -276,7 +276,7 @@ class ProfilingMiddleware(object):
         else:
             deleted_rows = 0
 
-        resp.body = "%d row(s) deleted." % deleted_rows
+        resp.text = "%d row(s) deleted." % deleted_rows
 
         return resp
 
@@ -298,18 +298,18 @@ class ProfilingMiddleware(object):
         # If the Session doesn't exist, return an appropriate error
         if not session:
             resp.status = "404 Not Found"
-            resp.body = "Session `%s' not found." % session_uuid
+            resp.text = "Session `%s' not found." % session_uuid
         else:
             # Otherwise, prepare the graph for display!
             cutoff_percentage = float(
-                req.str_params.get('cutoff_percent', 5) or 5) / 100
+                req.params.get('cutoff_percent', 5) or 5) / 100
             cutoff_time = int(
                 session.duration * cutoff_percentage * CUTOFF_TIME_UNITS)
             graph, root_nodes, removed_edges = prepare_graph(
                 session._graph, cutoff_time, True)
             chart_values = time_per_field(session._graph, root_nodes,
                                         self.chart_packages)
-            resp.unicode_body = self.get_template('tree.tmpl').render_unicode(
+            resp.text = self.get_template('tree.tmpl').render_unicode(
                 session=session,
                 graph=graph,
                 root_nodes=root_nodes,
