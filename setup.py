@@ -16,7 +16,7 @@ if sys.version_info < (2, 7):
 
 setup(
     name='linesman',
-    version='0.2.2',
+    version='0.2.3',
     description='WSGI Profiling middleware',
     long_description=open("README.rst", "r").read(),
     author='Andrew McFague',
