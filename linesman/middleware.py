@@ -19,7 +19,7 @@ from cProfile import Profile
 from datetime import datetime
 from tempfile import gettempdir
 
-import Image
+from PIL import Image
 import networkx as nx
 from mako.lookup import TemplateLookup
 from paste.urlparser import StaticURLParser
