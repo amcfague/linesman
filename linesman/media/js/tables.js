@@ -27,12 +27,14 @@ $(document).ready(function() {
         if(!confirm(msg))
             return false;
 
+        var session_uuids = [];
         for(i=0; i < nodes.length; i++) {
             // Remove these sessions from the backend
-            $.ajax($(nodes[i]).find("a.delete").attr("href"));
+            session_uuids.push(nodes[i].id);
             // And, of course, remove the rows
             oTable.fnDeleteRow(nodes[i]);
         }
+        $.post('__profiler__/delete', {'session_uuids':session_uuids});
         // Also clear the search input and manually trigger the keyup event
         $("tfoot input").val("").keyup();
         // Restore the "Filter by ..." text.

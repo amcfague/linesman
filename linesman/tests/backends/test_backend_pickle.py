@@ -102,6 +102,23 @@ class TestBackendPickle(TestBackend):
 
     @patch("__builtin__.open", Mock(side_effect=IOError()))
     @patch("linesman.backends.pickle.PickleBackend._flush")
+    def test_delete_many(self, mock_flush):
+        """ Test that delete_many does the right thing. """
+        self.backend.setup()
+        mock_sessions = []
+        for i in range(10):
+            mock_session = MagicMock()
+            mock_session.uuid = str(i)
+            mock_sessions.append(mock_session)
+            self.backend.add(mock_session)
+
+        self.assertEquals(self.backend.delete_many(session.uuid for session in mock_sessions[0:5]), 5)
+        self.assertEquals(self.backend.delete_many(['11','12','13','14']), 0)
+        self.assertEquals(len(self.backend._session_history), 5)
+        mock_flush.assert_called_once()
+
+    @patch("__builtin__.open", Mock(side_effect=IOError()))
+    @patch("linesman.backends.pickle.PickleBackend._flush")
     def test_delete_all(self, mock_flush):
         """ Test that deleting a non-existing UUID returns 0. """
         mock_session1 = MagicMock()
