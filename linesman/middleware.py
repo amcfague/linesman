@@ -276,7 +276,7 @@ class ProfilingMiddleware(object):
         else:
             deleted_rows = 0
 
-        resp.text = "%d row(s) deleted." % deleted_rows
+        resp.text = u"%d row(s) deleted." % deleted_rows
 
         return resp
 
@@ -298,7 +298,7 @@ class ProfilingMiddleware(object):
         # If the Session doesn't exist, return an appropriate error
         if not session:
             resp.status = "404 Not Found"
-            resp.text = "Session `%s' not found." % session_uuid
+            resp.text = u"Session `%s' not found." % session_uuid
         else:
             # Otherwise, prepare the graph for display!
             cutoff_percentage = float(

@@ -85,6 +85,13 @@ class TestProfilingMiddleware(TestCase):
             app.get('/__profiler__/profiles/%s' % session.uuid)
             resp = app.get('/__profiler__')
             assert(session.uuid in resp.body)
+
+            resp = app.get('/__profiler__/delete/%s' % session.uuid)
+            assert('1 row(s) deleted' in resp.body)
+
+            resp = app.get('/__profiler__/profiles/%s' % session.uuid,
+                           status=404)
+
         finally:
             # Clean up after ourselves
             try:
