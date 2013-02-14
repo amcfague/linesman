@@ -309,7 +309,7 @@ class ProfilingMiddleware(object):
                 session._graph, cutoff_time, True)
             chart_values = time_per_field(session._graph, root_nodes,
                                         self.chart_packages)
-            resp.text = self.get_template('tree.tmpl').render_unicode(
+            resp.unicode_body = self.get_template('tree.tmpl').render_unicode(
                 session=session,
                 graph=graph,
                 root_nodes=root_nodes,
@@ -319,7 +319,6 @@ class ProfilingMiddleware(object):
                 cutoff_time=cutoff_time,
                 chart_values=chart_values
             )
-
         return resp
 
 
