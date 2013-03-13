@@ -1,5 +1,23 @@
-0.3 (development)
------------------
+0.3.0 (2013-03-12)
+------------------
+
+:Contributor: Gert Burger
+:Contributor: Sam Kimbrel
+:Contributor: J.J. Guy
+
+* Use pillow instead of PIL. (GertBerger)
+* WebOb requires that response.text is a unicode object. (GertBerger)
+* Fix a couple resp.text unicode issues (skimbrel)
+* Fix timezone-dependent test (skimbrel)
+* Assign unicode template to body_unicode (jjguy)
+
+0.2.3 (2013-01-16)
+------------------
+
+:Contributor: Hong Minhee
+:Contributor: Sam Kimbrel
+
+* linesman updated to support webob>=1.2 (dahlia, skimbrel)
 
 0.2.2 (2011-09-30)
 ------------------
