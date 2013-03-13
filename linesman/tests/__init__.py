@@ -1,4 +1,5 @@
 import datetime
+import time
 import tempfile
 
 from mock import Mock, patch
@@ -10,7 +11,7 @@ __all__ = ['SPECIFIC_DATE_DATETIME', 'SPECIFIC_DATE_EPOCH',
            'create_mock_session', 'get_temporary_filename']
 
 SPECIFIC_DATE_DATETIME = datetime.datetime(2011, 1, 1, 0, 0, 0, 0)
-SPECIFIC_DATE_EPOCH = 1293858000.0
+SPECIFIC_DATE_EPOCH = time.mktime(SPECIFIC_DATE_DATETIME.timetuple())
 
 
 @patch.object(linesman, "create_graph", Mock(return_value=["abc"]))
