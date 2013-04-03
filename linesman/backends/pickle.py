@@ -85,6 +85,19 @@ class PickleBackend(Backend):
 
         return 0
 
+    def delete_many(self, session_uuids):
+        """
+        Remove the sessions from the dictionary and flush it to disk.
+        """
+        count = 0
+        for session_uuid in session_uuids:
+            if session_uuid in self._session_history:
+                del self._session_history[session_uuid]
+                count += 1
+
+        self._flush()
+        return count
+
     def delete_all(self):
         """
         Clear the entire session history and flush it to disk.

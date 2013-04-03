@@ -275,6 +275,9 @@ class ProfilingMiddleware(object):
             deleted_rows = self._backend.delete(session_uuid)
         else:
             deleted_rows = 0
+            session_uuids = req.POST.getall('session_uuids[]')
+            if session_uuids:
+                deleted_rows = self._backend.delete_many(session_uuids)
 
         resp.text = u"%d row(s) deleted." % deleted_rows
 

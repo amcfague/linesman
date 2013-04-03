@@ -103,6 +103,19 @@ class SqliteBackend(Backend):
 
         return conn.total_changes
 
+    def delete_many(self, session_uuids):
+        """
+        Remove the sessions.
+        """
+        query = "DELETE FROM sessions WHERE uuid IN (%s);" % ", ".join('?' * len(session_uuids))
+        params = session_uuids
+
+        conn = self.conn
+        curs = conn.cursor()
+        curs.execute(query, params)
+
+        return conn.total_changes
+
     def delete_all(self):
         """
         Truncate the database.
