@@ -1,3 +1,10 @@
+0.3.1 (2013-05-02)
+------------------
+
+:Contributor: Gert Berger
+
+* Add delete_many to delete multiple selected sessions at once. (GertBerger)
+
 0.3.0 (2013-03-12)
 ------------------
 
