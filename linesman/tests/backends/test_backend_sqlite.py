@@ -70,6 +70,21 @@ class TestBackendSqlite(TestBackend):
         c.execute(query, params)
         self.assertEquals(c.fetchone(), None)
 
+    def test_delete_many(self):
+        """ Test that delete_many removes the correct sessions. """
+        sessions = []
+        for i in range(10):
+            mock_session = create_mock_session()
+            self.backend.add(mock_session)
+            sessions.append(mock_session.uuid)
+
+        delete_count = self.backend.delete_many(sessions[0:5])
+        self.assertEquals(delete_count, 5)
+
+        c = self.backend.conn.cursor()
+        c.execute("SELECT COUNT(*) FROM sessions;")
+        self.assertEquals(c.fetchone(), (5,))
+
     def test_delete_all(self):
         """ Test that deleting all session removes them all from the DB """
         # Add a few new session profiles

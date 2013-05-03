@@ -25,6 +25,11 @@ class TestBaseBackend(TestBackend):
         self.backend.delete(None)
 
     @raises(NotImplementedError)
+    def test_delete_many_not_implemented(self):
+        """ Test that delete_many raises NotImplementedError. """
+        self.backend.delete_many([None])
+
+    @raises(NotImplementedError)
     def test_delete_all_not_implemented(self):
         """ Test that delete_all raises NotImplementedError. """
         self.backend.delete_all()

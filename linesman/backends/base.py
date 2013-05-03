@@ -52,6 +52,16 @@ class Backend(object):
         """
         raise NotImplementedError()
 
+    def delete_many(self, session_uuids):
+        """
+        Removes a list of stored sessions from the history.
+
+        This should return the number of rows removed.
+
+        Raises a :class:`NotImplementedError` exception.
+        """
+        raise NotImplementedError()
+
     def delete_all(self):
         """
         Removes all stored sessions from the history.
