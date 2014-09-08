@@ -438,7 +438,12 @@ def prepare_graph(source_graph, cutoff_time, break_cycles=False):
     # Break cycles
     if break_cycles:
         for cycle in nx.simple_cycles(graph):
-            u, v = cycle[0], cycle[1]
+            if len(cycle) == 1:
+                # When a node loop over itself simple_cycles
+                # only returns one node
+                u = v = cycle[0]
+            else:
+                u, v = cycle[0], cycle[1]
             if graph.has_edge(u, v):
                 graph.remove_edge(u, v)
                 cyclic_breaks.append((u, v))
