@@ -23,7 +23,13 @@ class Backend(object):
     """
 
     def __init__(self, *args, **kwargs):
-        pass
+        self.min_duration = kwargs.get('min_duration', None)
+
+    def should_add(self, session):
+        """
+        Returns ``True`` if session should be saved
+        """
+        return self.min_duration is None or session.duration >= self.min_duration
 
     def setup(self):
         """

@@ -37,7 +37,8 @@ class PickleBackend(Backend):
     requests.
     """
 
-    def __init__(self, filename="sessions.dat"):
+    def __init__(self, filename="sessions.dat", *args, **kwargs):
+        super(PickleBackend, self).__init__(self, *args, **kwargs)
         self.filename = filename
 
     def _flush(self):
@@ -71,6 +72,8 @@ class PickleBackend(Backend):
         """
         Adds a session to this dictionary and flushes it to disk.
         """
+        if not self.should_add(session):
+            return
         self._session_history[session.uuid] = session
         self._flush()
 
