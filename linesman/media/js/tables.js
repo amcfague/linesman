@@ -34,7 +34,7 @@ $(document).ready(function() {
             // And, of course, remove the rows
             oTable.fnDeleteRow(nodes[i]);
         }
-        $.post(PATH+'delete', {'session_uuids':session_uuids});
+        $.post(PATH+'/delete', {'session_uuids':session_uuids});
         // Also clear the search input and manually trigger the keyup event
         $("tfoot input").val("").keyup();
         // Restore the "Filter by ..." text.
