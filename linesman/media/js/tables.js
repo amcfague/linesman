@@ -43,6 +43,28 @@ $(document).ready(function() {
         return false;
     });
 
+    $("#delete_all").click(function() {
+        // Only remove the filtered nodes!
+        nodes = oTable.fnGetNodes();
+
+        // Next, confirm that this is what the user really wants!
+        msg = "You are about to remove " + nodes.length + " saved sessions." +
+              "\n\nPress OK to delete these sessions.";
+        if(!confirm(msg))
+            return false;
+
+        for(i=0; i < nodes.length; i++) {
+            oTable.fnDeleteRow(nodes[i]);
+        }
+        $.ajax('__profiler__/delete/all');
+        // Also clear the search input and manually trigger the keyup event
+        $("tfoot input").val("").keyup();
+        // Restore the "Filter by ..." text.
+        $("tfoot input").blur();
+
+        return false;
+    });
+
     // Add the ability to retrieve a list of all filtered rows
     $.fn.dataTableExt.oApi.fnGetFilteredNodes = function ( oSettings )
     {
