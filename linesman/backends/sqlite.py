@@ -38,7 +38,7 @@ class SqliteBackend(Backend):
     Stores sessions in a SQLite database.
     """
 
-    def __init__(self, filename="sessions.db"):
+    def __init__(self, filename="sessions.db", *args, **kwargs):
         """
         Opens up a connection to a sqlite3 database.
 
@@ -49,6 +49,7 @@ class SqliteBackend(Backend):
             This can also be set to `:memory:` to store the database in
             memory; however, this will not persist across runs.
         """
+        super(SqliteBackend, self).__init__(self, *args, **kwargs)
         self.filename = filename
 
     @property
@@ -77,6 +78,8 @@ class SqliteBackend(Backend):
         """
         Insert a new session into the database.
         """
+        if not self.should_add(session):
+            return
         uuid = session.uuid
         if session.timestamp:
             timestamp = time.mktime(session.timestamp.timetuple())

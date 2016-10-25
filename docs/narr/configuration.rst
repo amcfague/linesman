@@ -81,3 +81,6 @@ config parameter::
     filename = sessions.dat
 
 Remember, always use the backends page for the most up-to-date info.
+
+Most backends also support min_duration keword argument. When it's set to some number then
+profiling session's total time should be ewqual or greater than this value to be saved
