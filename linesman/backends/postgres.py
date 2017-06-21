@@ -133,8 +133,10 @@ class PostgresBackend(Backend):
             session_uuid)
 
         cur = self.conn.cursor()
+        result = None
         try:
             cur.execute(query)
+            self.conn.commit()
             session = cur.fetchone()
             result = cPickle.load(StringIO.StringIO(session[0]))
         except:
@@ -154,6 +156,7 @@ class PostgresBackend(Backend):
         result = []
         try:
             cur.execute(query)
+            self.conn.commit()
             result = cur.fetchall()
         except:
             self.conn.rollback()
