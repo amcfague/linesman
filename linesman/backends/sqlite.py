@@ -13,11 +13,11 @@
 # You should have received a copy of the GNU General Public License along
 # with linesman.  If not, see <http://www.gnu.org/licenses/>.
 #
-import cPickle
 import logging
 import sqlite3
 import time
 
+from six.moves import cPickle
 from linesman.backends.base import Backend
 
 
