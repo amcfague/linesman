@@ -18,6 +18,7 @@ import uuid
 from inspect import getmodule
 
 import networkx as nx
+import networkx.drawing.nx_agraph
 
 
 log = logging.getLogger(__name__)
@@ -48,7 +49,7 @@ def draw_graph(graph, output_path):
     ``output_path``:
         Location to store the rendered output.
     """
-    nx.to_agraph(graph).draw(output_path, prog="dot")
+    networkx.drawing.nx_agraph.to_agraph(graph).draw(output_path, prog="dot")
     log.info("Wrote output to `%s'" % output_path)
 
 
@@ -85,7 +86,7 @@ def create_graph(stats):
             'reccallcount': stat.reccallcount,
             'totaltime': stat.totaltime,
         }
-        g.add_node(caller_key, attr_dict=attrs)
+        g.add_node(caller_key, **attrs)
 
         # Add all the calls as edges
         for call in stat.calls or []:
@@ -102,7 +103,7 @@ def create_graph(stats):
             g.add_edge(caller_key, callee_key,
                        weight=call.totaltime,
                        label=call.totaltime,
-                       attr_dict=call_attrs)
+                       **call_attrs)
 
     return g
 

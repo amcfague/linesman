@@ -9,7 +9,7 @@ import linesman
 
 class TestGraphUtils(unittest.TestCase):
 
-    @patch("networkx.to_agraph")
+    @patch("networkx.drawing.nx_agraph.to_agraph")
     def test_draw_graph(self, mock_to_agraph):
         """ Test that the graph gets converted to an agraph """
         mock_draw = Mock()

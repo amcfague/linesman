@@ -7,7 +7,7 @@ except ImportError:
 
 import sys
 
-install_requires = ["mako", "networkx==1.7", "pillow", "pygraphviz", 'Paste', 'WebOb']
+install_requires = ["mako", "networkx>=2.0", "pillow", "pygraphviz", 'Paste', 'WebOb']
 
 # ordereddict is required for versions < 2.7; its included in collections in
 # versions 2.7+ and 3.0+
