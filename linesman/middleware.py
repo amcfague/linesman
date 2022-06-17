@@ -20,6 +20,7 @@ from datetime import datetime
 from tempfile import gettempdir
 
 from PIL import Image
+from networkx.classes.reportviews import InDegreeView
 import networkx as nx
 from mako.lookup import TemplateLookup
 from paste.urlparser import StaticURLParser
@@ -438,13 +439,19 @@ def prepare_graph(source_graph, cutoff_time, break_cycles=False):
     # Break cycles
     if break_cycles:
         for cycle in nx.simple_cycles(graph):
-            u, v = cycle[0], cycle[1]
-            if graph.has_edge(u, v):
-                graph.remove_edge(u, v)
-                cyclic_breaks.append((u, v))
+            end = len(cycle) - 1 if len(cycle) > 1 else 1
+            for i in range(end):
+                u = cycle[i]
+                if len(cycle) == 1:
+                    v = u
+                else:
+                    v = cycle[i + 1]
+                if graph.has_edge(u, v):
+                    graph.remove_edge(u, v)
+                    cyclic_breaks.append((u, v))
 
     root_nodes = [node
-                  for node, degree in graph.in_degree_iter()
+                  for node, degree in InDegreeView(graph)
                   if degree == 0]
 
     return graph, root_nodes, cyclic_breaks

@@ -1,6 +1,6 @@
 <%def name="print_tree(node)">
 <%
-    node_obj = graph.node[node]
+    node_obj = graph._node[node]
     total_time_percentage = round(node_obj.get('totaltime') / session.duration * 100, 2)
     inline_time_percentage = round(node_obj.get('inlinetime') / session.duration * 100, 2)
     open_or_leaf = 'open' if graph.neighbors(node) else 'leaf'
